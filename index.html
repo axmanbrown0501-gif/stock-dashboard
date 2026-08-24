@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Desk — AMZN + MSFT</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #070b10;
+    color: #edf2f7;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+header {
+    height: 72px;
+    background: #0c1118;
+    border-bottom: 1px solid #202936;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.subtitle {
+    color: #8995a5;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.status {
+    color: #65e39b;
+    font-size: 13px;
+}
+
+main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    padding: 20px;
+}
+
+.card {
+    background: #10161e;
+    border: 1px solid #222c38;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 10px 35px rgba(0,0,0,.3);
+}
+
+.top {
+    display: flex;
+    justify-content: space-between;
+}
+
+.symbol {
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.company {
+    color: #8995a5;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.time {
+    color: #697585;
+    font-size: 11px;
+}
+
+.price {
+    font-size: 36px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.change {
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+canvas {
+    width: 100%;
+    height: 270px;
+    background: #0b1016;
+    border-radius: 10px;
+    margin-top: 18px;
+}
+
+.buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+button {
+    background: #1a2330;
+    border: 1px solid #303b49;
+    color: #e8edf3;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #263242;
+}
+
+.note {
+    color: #697585;
+    font-size: 11px;
+    padding: 0 22px 18px;
+    line-height: 1.5;
+}
+
+@media(max-width: 800px) {
+    main {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+    <div>
+        <h1>📊 Market Desk</h1>
+        <div class="subtitle">
+            Amazon · Microsoft · Live Dashboard
+        </div>
+    </div>
+
+    <div class="status" id="status">
+        ● Connecting...
+    </div>
+
+</header>
+
+
+<main>
+
+<!-- AMAZON -->
+
+<section class="card">
+
+    <div class="top">
+
+        <div>
+            <div class="symbol">AMZN</div>
+            <div class="company">
+                Amazon.com, Inc.
+            </div>
+        </div>
+
+        <div class="time" id="amznTime">
+            —
+        </div>
+
+    </div>
+
+    <div class="price" id="amznPrice">
+        —
+    </div>
+
+    <div class="change" id="amznChange">
+        Loading market data...
+    </div>
+
+    <canvas id="amznChart"></canvas>
+
+    <div class="buttons">
+        <button onclick="refreshAll()">
+            ↻ Refresh
+        </button>
+
+        <button onclick="clearChart('AMZN')">
+            Clear Chart
+        </button>
+    </div>
+
+</section>
+
+
+<!-- MICROSOFT -->
+
+<section class="card">
+
+    <div class="top">
+
+        <div>
+            <div class="symbol">MSFT</div>
+
+            <div class="company">
+                Microsoft Corporation
+            </div>
+        </div>
+
+        <div class="time" id="msftTime">
+            —
+        </div>
+
+    </div>
+
+    <div class="price" id="msftPrice">
+        —
+    </div>
+
+    <div class="change" id="msftChange">
+        Loading market data...
+    </div>
+
+    <canvas id="msftChart"></canvas>
+
+    <div class="buttons">
+
+        <button onclick="refreshAll()">
+            ↻ Refresh
+        </button>
+
+        <button onclick="clearChart('MSFT')">
+            Clear Chart
+        </button>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<div class="note">
+
+    Market prices are supplied by an external market-data service.
+    Prices may be delayed. If your school network blocks the data service,
+    the dashboard will still load but prices may not appear.
+
+</div>
+
+
+<script>
+
+/* =========================================
+   STOCK DATA
+========================================= */
+
+const stocks = {
+
+    AMZN: {
+        points: []
+    },
+
+    MSFT: {
+        points: []
+    }
+
+};
+
+
+/* =========================================
+   STATUS
+========================================= */
+
+function setStatus(text, color) {
+
+    const status =
+        document.getElementById("status");
+
+    status.textContent = text;
+
+    if (color) {
+        status.style.color = color;
+    }
+
+}
+
+
+/* =========================================
+   FORMAT MONEY
+========================================= */
+
+function money(number) {
+
+    if (!Number.isFinite(number)) {
+        return "—";
+    }
+
+    return "$" + number.toFixed(2);
+
+}
+
+
+/* =========================================
+   UPDATE STOCK CARD
+========================================= */
+
+function updateCard(symbol, price, previous) {
+
+    const id = symbol.toLowerCase();
+
+    const difference =
+        price - previous;
+
+    const percentage =
+        previous
+        ? (difference / previous) * 100
+        : 0;
+
+
+    document.getElementById(
+        id + "Price"
+    ).textContent = money(price);
+
+
+    const change =
+        document.getElementById(
+            id + "Change"
+        );
+
+
+    change.textContent =
+        (difference >= 0 ? "+" : "") +
+        difference.toFixed(2) +
+        "  (" +
+        (percentage >= 0 ? "+" : "") +
+        percentage.toFixed(2) +
+        "%)";
+
+
+    change.style.color =
+        difference >= 0
+        ? "#65e39b"
+        : "#ff7070";
+
+
+    document.getElementById(
+        id + "Time"
+    ).textContent =
+        new Date().toLocaleTimeString();
+
+
+    stocks[symbol].points.push(price);
+
+    stocks[symbol].points =
+        stocks[symbol].points.slice(-120);
+
+
+    drawChart(symbol);
+
+}
+
+
+/* =========================================
+   GET STOCK DATA
+========================================= */
+
+async function getStock(symbol) {
+
+    try {
+
+        /*
+        This endpoint is used only as a simple
+        public demonstration.
+
+        Some school networks may block it.
+        */
+
+        const url =
+            "https://query1.finance.yahoo.com/v8/finance/chart/" +
+            symbol +
+            "?interval=1m&range=1d";
+
+
+        const response =
+            await fetch(
+                url,
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!response.ok) {
+            throw new Error("Request failed");
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const result =
+            data.chart.result[0];
+
+
+        const quote =
+            result.indicators.quote[0];
+
+
+        const prices =
+            quote.close.filter(
+                value =>
+                    Number.isFinite(value)
+            );
+
+
+        if (!prices.length) {
+            throw new Error("No prices");
+        }
+
+
+        const current =
+            prices[prices.length - 1];
+
+
+        const previous =
+            result.meta.previousClose ||
+            current;
+
+
+        updateCard(
+            symbol,
+            current,
+            previous
+        );
+
+
+        return true;
+
+    }
+
+    catch (error) {
+
+        const id =
+            symbol.toLowerCase();
+
+
+        document.getElementById(
+            id + "Change"
+        ).textContent =
+            "Market data unavailable";
+
+
+        return false;
+
+    }
+
+}
+
+
+/* =========================================
+   REFRESH
+========================================= */
+
+async function refreshAll() {
+
+    setStatus(
+        "● Updating...",
+        "#65e39b"
+    );
+
+
+    const results =
+        await Promise.all([
+            getStock("AMZN"),
+            getStock("MSFT")
+        ]);
+
+
+    if (results.includes(true)) {
+
+        setStatus(
+            "● Dashboard Ready",
+            "#65e39b"
+        );
+
+    } else {
+
+        setStatus(
+            "● Data Blocked",
+            "#ff7070"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   DRAW CHART
+========================================= */
+
+function drawChart(symbol) {
+
+    const canvas =
+        document.getElementById(
+            symbol.toLowerCase() +
+            "Chart"
+        );
+
+
+    const ctx =
+        canvas.getContext("2d");
+
+
+    const width =
+        canvas.clientWidth;
+
+
+    const height =
+        canvas.clientHeight;
+
+
+    const ratio =
+        window.devicePixelRatio || 1;
+
+
+    canvas.width =
+        width * ratio;
+
+
+    canvas.height =
+        height * ratio;
+
+
+    ctx.scale(
+        ratio,
+        ratio
+    );
+
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    const prices =
+        stocks[symbol].points;
+
+
+    if (prices.length < 2) {
+        return;
+    }
+
+
+    let min =
+        Math.min(...prices);
+
+
+    let max =
+        Math.max(...prices);
+
+
+    if (min === max) {
+
+        min -= 1;
+        max += 1;
+
+    }
+
+
+    /* Grid */
+
+    ctx.strokeStyle =
+        "#202936";
+
+    ctx.lineWidth = 1;
+
+
+    for (
+        let i = 1;
+        i < 5;
+        i++
+    ) {
+
+        const y =
+            i * height / 5;
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            y
+        );
+
+        ctx.lineTo(
+            width,
+            y
+        );
+
+        ctx.stroke();
+
+    }
+
+
+    /* Price line */
+
+    ctx.beginPath();
+
+
+    prices.forEach(
+        (value, index) => {
+
+            const x =
+                6 +
+                index *
+                (width - 12) /
+                (prices.length - 1);
+
+
+            const y =
+                height -
+                7 -
+                (
+                    (value - min) /
+                    (max - min)
+                ) *
+                (height - 14);
+
+
+            if (index === 0) {
+
+                ctx.moveTo(
+                    x,
+                    y
+                );
+
+            } else {
+
+                ctx.lineTo(
+                    x,
+                    y
+                );
+
+            }
+
+        }
+    );
+
+
+    ctx.strokeStyle =
+        prices[prices.length - 1] >=
+        prices[0]
+        ? "#65e39b"
+        : "#ff7070";
+
+
+    ctx.lineWidth = 2.5;
+
+    ctx.stroke();
+
+}
+
+
+/* =========================================
+   CLEAR CHART
+========================================= */
+
+function clearChart(symbol) {
+
+    stocks[symbol].points = [];
+
+    drawChart(symbol);
+
+}
+
+
+/* =========================================
+   WINDOW RESIZE
+========================================= */
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        drawChart("AMZN");
+        drawChart("MSFT");
+
+    }
+);
+
+
+/* =========================================
+   START
+========================================= */
+
+refreshAll();
+
+
+/*
+Refresh approximately every 30 seconds.
+*/
+
+setInterval(
+    refreshAll,
+    30000
+);
+
+</script>
+
+</body>
+</html>
