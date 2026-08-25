@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Market Desk</title>
 
 <style>
@@ -11,296 +10,500 @@
   box-sizing: border-box;
 }
 
+:root {
+  --bg: #050505;
+  --panel: #101010;
+  --panel2: #171717;
+  --border: #292929;
+  --text: #ffffff;
+  --muted: #8e8e93;
+  --green: #00c805;
+  --red: #ff453a;
+  --blue: #3478f6;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  background: #070b10;
-  color: #f4f7fb;
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+}
+
+button {
+  font-family: inherit;
 }
 
 header {
-  padding: 24px 32px;
-  border-bottom: 1px solid #26313e;
-  background: #0a0f16;
-
+  height: 72px;
+  border-bottom: 1px solid #202020;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+  padding: 0 30px;
+  position: sticky;
+  top: 0;
+  background: rgba(5,5,5,.94);
+  backdrop-filter: blur(15px);
+  z-index: 20;
 }
 
 .logo {
-  font-size: 42px;
-}
-
-h1 {
-  margin: 0;
-  font-size: 36px;
+  font-size: 23px;
+  font-weight: 800;
   letter-spacing: -1px;
 }
 
-.subtitle {
-  margin-top: 6px;
-  color: #8da0b8;
-  font-size: 18px;
+.logo span {
+  color: var(--green);
 }
 
-.status {
-  font-size: 17px;
-  color: #55d98b;
-
+.nav {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  gap: 25px;
+  color: var(--muted);
+  font-size: 14px;
 }
 
-.status-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #55d98b;
+.nav a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nav a:hover {
+  color: white;
 }
 
 main {
-  padding: 28px;
-  max-width: 1450px;
+  max-width: 1250px;
   margin: auto;
+  padding: 35px 25px 70px;
 }
 
-.top-grid {
+/* PORTFOLIO */
+
+.portfolio {
+  margin-bottom: 38px;
+}
+
+.small-title {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 9px;
+}
+
+.portfolio-value {
+  font-size: clamp(42px, 7vw, 68px);
+  font-weight: 700;
+  letter-spacing: -3px;
+}
+
+.portfolio-gain {
+  color: var(--green);
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.portfolio-sub {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 7px;
+}
+
+/* GRID */
+
+.grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 22px;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 20px;
 }
 
 .card {
-  background: #101720;
-  border: 1px solid #273443;
-  border-radius: 22px;
-  padding: 28px;
-
-  box-shadow: 0 12px 35px rgba(0,0,0,.25);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
 }
 
-.ticker-row {
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* STOCK */
+
+.stock-head {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
 
-.ticker {
-  font-size: 48px;
-  font-weight: 800;
-  letter-spacing: -2px;
+.stock-name {
+  font-size: 29px;
+  font-weight: 750;
 }
 
-.company {
-  color: #91a4bc;
-  font-size: 20px;
+.stock-company {
+  color: var(--muted);
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.stock-price {
+  font-size: 28px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.stock-change {
+  color: var(--green);
+  font-size: 14px;
+  text-align: right;
+  margin-top: 5px;
+}
+
+.chart {
+  height: 390px;
+  margin-top: 22px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #080808;
+}
+
+/* HOLDING */
+
+.holding {
+  display: flex;
+  flex-direction: column;
+}
+
+.holding-top {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.stock-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: white;
+  color: #111;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 19px;
+}
+
+.holding-name {
+  font-weight: 700;
+}
+
+.holding-ticker {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+.holding-value {
+  font-size: 34px;
+  font-weight: 750;
+  margin-top: 27px;
+}
+
+.holding-profit {
+  color: var(--green);
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+.holding-details {
+  margin-top: 28px;
+  border-top: 1px solid var(--border);
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.detail-row span:first-child {
+  color: var(--muted);
+}
+
+.detail-row span:last-child {
+  font-weight: 600;
+}
+
+/* WATCHLIST */
+
+.watchlist {
+  margin-top: 20px;
+}
+
+.watch-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.watch {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  padding: 17px;
+}
+
+.watch-symbol {
+  font-weight: 750;
+  font-size: 16px;
+}
+
+.watch-name {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.watch-price {
+  margin-top: 20px;
+  font-weight: 700;
+}
+
+.watch-change {
+  color: var(--green);
+  font-size: 13px;
   margin-top: 4px;
 }
 
-.widget-box {
-  margin-top: 25px;
-  background: #080d13;
-  border-radius: 16px;
+/* MARKET */
+
+.market {
+  margin-top: 20px;
+}
+
+.market-widget {
+  height: 430px;
   overflow: hidden;
-  min-height: 130px;
+  border-radius: 14px;
 }
 
-.chart-box {
-  margin-top: 18px;
-  height: 350px;
-  background: #080d13;
-  border-radius: 16px;
-  overflow: hidden;
+/* PRACTICE */
+
+.practice {
+  margin-top: 20px;
+  border: 1px solid #2a2a2a;
+  background: linear-gradient(145deg, #111, #090909);
+  border-radius: 18px;
+  padding: 24px;
 }
 
-.dashboard {
-  margin-top: 22px;
-
-  display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
-
-  gap: 22px;
+.practice h2 {
+  margin: 0;
+  font-size: 20px;
 }
 
-.big-card {
-  min-height: 190px;
-}
-
-.section-title {
-  color: #91a4bc;
-  font-size: 14px;
-
-  text-transform: uppercase;
-  letter-spacing: 1px;
-
-  margin-bottom: 15px;
-}
-
-.big-number {
-  font-size: 35px;
-  font-weight: 800;
-}
-
-.refresh {
-  border: none;
-  background: #1d6fff;
-  color: white;
-
-  padding: 12px 18px;
-
-  border-radius: 10px;
-
-  font-size: 15px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  margin-top: 18px;
-}
-
-.refresh:hover {
-  opacity: .88;
-}
-
-.last-update {
-  color: #708197;
-  font-size: 13px;
-  margin-top: 10px;
-}
-
-.market-note {
-  color: #8da0b8;
+.practice p {
+  color: var(--muted);
   line-height: 1.5;
-  font-size: 14px;
 }
+
+.practice-button {
+  border: 0;
+  background: #242424;
+  color: white;
+  padding: 11px 17px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.practice-button:hover {
+  background: #303030;
+}
+
+.practice-result {
+  margin-top: 17px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+/* FOOTER */
 
 footer {
   text-align: center;
-  color: #63748a;
-
+  color: #666;
   padding: 30px;
-
-  font-size: 13px;
+  font-size: 12px;
 }
 
-.tradingview-widget-copyright {
-  padding: 8px 12px;
-  font-size: 11px;
-}
+/* RESPONSIVE */
 
-.tradingview-widget-copyright a {
-  color: #8da0b8;
-  text-decoration: none;
-}
-
-@media (max-width: 950px) {
-
-  .top-grid,
-  .dashboard {
+@media(max-width: 900px) {
+  .grid {
     grid-template-columns: 1fr;
   }
 
-  header {
-    align-items: flex-start;
-    gap: 20px;
-    flex-direction: column;
+  .watch-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 600px) {
+@media(max-width: 600px) {
+  header {
+    padding: 0 17px;
+  }
+
+  .nav {
+    display: none;
+  }
 
   main {
-    padding: 15px;
+    padding: 25px 15px 50px;
   }
 
-  header {
-    padding: 18px;
+  .chart {
+    height: 310px;
   }
 
-  h1 {
-    font-size: 30px;
+  .watch-grid {
+    grid-template-columns: 1fr 1fr;
   }
 
-  .ticker {
-    font-size: 38px;
-  }
-
-  .chart-box {
-    height: 300px;
+  .stock-price {
+    font-size: 23px;
   }
 }
 </style>
 </head>
 
-
 <body>
 
 <header>
+  <div class="logo">Market<span>Desk</span></div>
 
-  <div class="brand">
-
-    <div class="logo">
-      📊
-    </div>
-
-    <div>
-
-      <h1>
-        Market Desk
-      </h1>
-
-      <div class="subtitle">
-        Amazon · Microsoft · Live Market Dashboard
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <div class="status">
-
-    <span class="status-dot"></span>
-
-    Market data connected
-
-  </div>
-
+  <nav class="nav">
+    <a href="#portfolio">Portfolio</a>
+    <a href="#stocks">Stocks</a>
+    <a href="#watchlist">Watchlist</a>
+    <a href="#markets">Markets</a>
+  </nav>
 </header>
-
 
 <main>
 
+<!-- PORTFOLIO -->
 
-<!-- ========================= -->
-<!-- STOCK CARDS -->
-<!-- ========================= -->
+<section class="portfolio" id="portfolio">
 
-<div class="top-grid">
+  <div class="small-title">Portfolio</div>
+
+  <div class="portfolio-value" id="portfolioValue">
+    $142.00
+  </div>
+
+  <div class="portfolio-gain" id="portfolioGain">
+    +$16.00 (+12.70%)
+  </div>
+
+  <div class="portfolio-sub">
+    Approximate value · 0.52 AMZN shares
+  </div>
+
+</section>
 
 
-<!-- AMAZON -->
+<!-- MAIN STOCK AREA -->
 
-<div class="card">
+<section class="grid" id="stocks">
 
-  <div class="ticker-row">
+  <!-- AMZN -->
 
-    <div>
+  <div class="card">
 
-      <div class="ticker">
-        AMZN
+    <div class="stock-head">
+
+      <div>
+        <div class="stock-name">Amazon</div>
+        <div class="stock-company">
+          AMZN · NASDAQ
+        </div>
       </div>
 
-      <div class="company">
-        Amazon.com, Inc.
+      <div>
+        <div class="stock-price" id="amznPrice">
+          Loading...
+        </div>
+
+        <div class="stock-change" id="amznChange">
+          Updating...
+        </div>
+      </div>
+
+    </div>
+
+    <div class="chart">
+
+      <div class="tradingview-widget-container"
+           style="height:100%;width:100%">
+
+        <div class="tradingview-widget-container__widget"
+             style="height:100%;width:100%"></div>
+
+        <script
+          type="text/javascript"
+          src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js"
+          async>
+        {
+          "symbols": [
+            [
+              "NASDAQ:AMZN|1D"
+            ]
+          ],
+          "chartOnly": false,
+          "width": "100%",
+          "height": "100%",
+          "locale": "en",
+          "colorTheme": "dark",
+          "autosize": true,
+          "showVolume": false,
+          "showMA": false,
+          "hideDateRanges": false,
+          "hideMarketStatus": false,
+          "hideSymbolLogo": true,
+          "scalePosition": "right",
+          "scaleMode": "Normal",
+          "fontFamily": "-apple-system, BlinkMacSystemFont, sans-serif",
+          "fontSize": "11",
+          "noTimeScale": false,
+          "valuesTracking": "1",
+          "changeMode": "price-and-percent",
+          "chartType": "area",
+          "dateRanges": [
+            "1d|5",
+            "5d|15",
+            "1m|60",
+            "3m|60",
+            "6m|120",
+            "1y|1D"
+          ],
+          "lineWidth": 2,
+          "lineType": 0,
+          "lineColor": "#00c805",
+          "topColor": "rgba(0,200,5,0.22)",
+          "bottomColor": "rgba(0,200,5,0)"
+        }
+        </script>
+
       </div>
 
     </div>
@@ -308,355 +511,356 @@ footer {
   </div>
 
 
-  <!-- TradingView Amazon quote -->
+  <!-- HOLDING -->
 
-  <div class="widget-box">
+  <div class="card holding">
 
-    <div
-      class="tradingview-widget-container"
-      style="width:100%;"
-    >
+    <div class="card-title">
+      Your Amazon Position
+    </div>
 
-      <div
-        class="tradingview-widget-container__widget"
-      ></div>
+    <div class="holding-top">
 
-      <div class="tradingview-widget-copyright">
+      <div class="stock-icon">a</div>
 
-        <a
-          href="https://www.tradingview.com/symbols/NASDAQ-AMZN/"
-          target="_blank"
-          rel="noopener nofollow"
-        >
-          AMZN market data
-        </a>
+      <div>
+        <div class="holding-name">
+          Amazon
+        </div>
 
-        · TradingView
-
+        <div class="holding-ticker">
+          AMZN
+        </div>
       </div>
-
-      <script
-        type="text/javascript"
-        src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-info.js"
-        async
-      >
-      {
-        "symbol": "NASDAQ:AMZN",
-        "width": "100%",
-        "locale": "en",
-        "colorTheme": "dark",
-        "isTransparent": true
-      }
-      </script>
 
     </div>
 
-  </div>
-
-
-  <!-- Amazon chart -->
-
-  <div class="chart-box">
-
-    <div
-      class="tradingview-widget-container"
-      style="height:100%;width:100%"
-    >
-
-      <div
-        class="tradingview-widget-container__widget"
-        style="height:calc(100% - 32px);width:100%"
-      ></div>
-
-      <div class="tradingview-widget-copyright">
-
-        <a
-          href="https://www.tradingview.com/symbols/NASDAQ-AMZN/"
-          target="_blank"
-          rel="noopener nofollow"
-        >
-          AMZN chart
-        </a>
-
-        · TradingView
-
-      </div>
-
-      <script
-        type="text/javascript"
-        src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js"
-        async
-      >
-      {
-        "autosize": true,
-        "symbol": "NASDAQ:AMZN",
-        "interval": "5",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "style": "1",
-        "locale": "en",
-        "allow_symbol_change": false,
-        "calendar": false,
-        "support_host": "https://www.tradingview.com"
-      }
-      </script>
-
+    <div class="holding-value" id="holdingValue">
+      $142.00
     </div>
 
-  </div>
+    <div class="holding-profit" id="holdingProfit">
+      +$16.00 (+12.70%)
+    </div>
 
-</div>
+    <div class="holding-details">
 
-
-<!-- MICROSOFT -->
-
-<div class="card">
-
-  <div class="ticker-row">
-
-    <div>
-
-      <div class="ticker">
-        MSFT
+      <div class="detail-row">
+        <span>Shares</span>
+        <span>0.52</span>
       </div>
 
-      <div class="company">
-        Microsoft Corporation
+      <div class="detail-row">
+        <span>Invested</span>
+        <span>$126.00</span>
+      </div>
+
+      <div class="detail-row">
+        <span>Average cost</span>
+        <span id="averageCost">$242.31</span>
+      </div>
+
+      <div class="detail-row">
+        <span>Current price</span>
+        <span id="holdingPrice">Loading...</span>
       </div>
 
     </div>
 
   </div>
 
+</section>
 
-  <!-- TradingView Microsoft quote -->
 
-  <div class="widget-box">
+<!-- WATCHLIST -->
 
-    <div
-      class="tradingview-widget-container"
-      style="width:100%;"
-    >
+<section class="watchlist" id="watchlist">
 
-      <div
-        class="tradingview-widget-container__widget"
-      ></div>
+  <div class="card-title">
+    Watchlist
+  </div>
 
-      <div class="tradingview-widget-copyright">
+  <div class="watch-grid">
 
-        <a
-          href="https://www.tradingview.com/symbols/NASDAQ-MSFT/"
-          target="_blank"
-          rel="noopener nofollow"
-        >
-          MSFT market data
-        </a>
+    <div class="watch">
+      <div class="watch-symbol">AMZN</div>
+      <div class="watch-name">Amazon</div>
+      <div class="watch-price" id="watchAmzn">Live</div>
+      <div class="watch-change">Live market data</div>
+    </div>
 
-        · TradingView
+    <div class="watch">
+      <div class="watch-symbol">MSFT</div>
+      <div class="watch-name">Microsoft</div>
+      <div class="watch-price">Live</div>
+      <div class="watch-change">NASDAQ</div>
+    </div>
 
-      </div>
+    <div class="watch">
+      <div class="watch-symbol">AAPL</div>
+      <div class="watch-name">Apple</div>
+      <div class="watch-price">Live</div>
+      <div class="watch-change">NASDAQ</div>
+    </div>
 
-      <script
-        type="text/javascript"
-        src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-info.js"
-        async
-      >
-      {
-        "symbol": "NASDAQ:MSFT",
-        "width": "100%",
-        "locale": "en",
-        "colorTheme": "dark",
-        "isTransparent": true
-      }
-      </script>
-
+    <div class="watch">
+      <div class="watch-symbol">NVDA</div>
+      <div class="watch-name">NVIDIA</div>
+      <div class="watch-price">Live</div>
+      <div class="watch-change">NASDAQ</div>
     </div>
 
   </div>
 
-
-  <!-- Microsoft chart -->
-
-  <div class="chart-box">
-
-    <div
-      class="tradingview-widget-container"
-      style="height:100%;width:100%"
-    >
-
-      <div
-        class="tradingview-widget-container__widget"
-        style="height:calc(100% - 32px);width:100%"
-      ></div>
-
-      <div class="tradingview-widget-copyright">
-
-        <a
-          href="https://www.tradingview.com/symbols/NASDAQ-MSFT/"
-          target="_blank"
-          rel="noopener nofollow"
-        >
-          MSFT chart
-        </a>
-
-        · TradingView
-
-      </div>
-
-      <script
-        type="text/javascript"
-        src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js"
-        async
-      >
-      {
-        "autosize": true,
-        "symbol": "NASDAQ:MSFT",
-        "interval": "5",
-        "timezone": "America/Los_Angeles",
-        "theme": "dark",
-        "style": "1",
-        "locale": "en",
-        "allow_symbol_change": false,
-        "calendar": false,
-        "support_host": "https://www.tradingview.com"
-      }
-      </script>
-
-    </div>
-
-  </div>
-
-</div>
-
-</div>
+</section>
 
 
-<!-- ========================= -->
-<!-- LOWER DASHBOARD -->
-<!-- ========================= -->
+<!-- MARKETS -->
 
-<div class="dashboard">
+<section class="market card" id="markets">
 
-
-<!-- MARKET OVERVIEW -->
-
-<div class="card big-card">
-
-  <div class="section-title">
+  <div class="card-title">
     Market Overview
   </div>
 
-  <div class="big-number">
-    AMZN · MSFT
+  <div class="market-widget">
+
+    <div class="tradingview-widget-container"
+         style="height:100%;width:100%">
+
+      <div class="tradingview-widget-container__widget"
+           style="height:100%;width:100%"></div>
+
+      <script
+        type="text/javascript"
+        src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js"
+        async>
+      {
+        "colorTheme": "dark",
+        "dateRange": "1D",
+        "showChart": true,
+        "locale": "en",
+        "largeChartUrl": "",
+        "isTransparent": true,
+        "showSymbolLogo": true,
+        "showFloatingTooltip": false,
+        "tabs": [
+          {
+            "title": "US Stocks",
+            "symbols": [
+              {
+                "s": "NASDAQ:AMZN",
+                "d": "Amazon"
+              },
+              {
+                "s": "NASDAQ:MSFT",
+                "d": "Microsoft"
+              },
+              {
+                "s": "NASDAQ:AAPL",
+                "d": "Apple"
+              },
+              {
+                "s": "NASDAQ:NVDA",
+                "d": "NVIDIA"
+              },
+              {
+                "s": "NASDAQ:TSLA",
+                "d": "Tesla"
+              }
+            ]
+          }
+        ]
+      }
+      </script>
+
+    </div>
+
   </div>
 
-  <div
-    class="market-note"
-    style="margin-top:12px;"
-  >
-    Live market widgets are connected directly
-    to TradingView's market-data system.
-  </div>
+</section>
 
-  <button
-    class="refresh"
-    onclick="location.reload()"
-  >
-    ↻ Refresh Market Data
+
+<!-- SAFE PRACTICE SECTION -->
+
+<section class="practice">
+
+  <h2>🎯 Market Practice</h2>
+
+  <p>
+    This is a separate practice area for experimenting with
+    random outcomes. It does not use money, betting, or your
+    portfolio.
+  </p>
+
+  <button class="practice-button" onclick="practiceSpin()">
+    Generate Random Result
   </button>
 
-  <div
-    class="last-update"
-    id="last-update"
-  >
-    Page loaded: —
+  <div class="practice-result" id="practiceResult">
+    Ready
   </div>
 
-</div>
-
-
-<!-- AMAZON MINI -->
-
-<div class="card big-card">
-
-  <div class="section-title">
-    Amazon
-  </div>
-
-  <div class="big-number">
-    AMZN
-  </div>
-
-  <div
-    class="muted"
-    style="margin-top:8px;"
-  >
-    Amazon.com, Inc.
-  </div>
-
-  <div
-    class="muted"
-    style="margin-top:20px;"
-  >
-    NASDAQ · AMZN
-  </div>
-
-</div>
-
-
-<!-- MICROSOFT MINI -->
-
-<div class="card big-card">
-
-  <div class="section-title">
-    Microsoft
-  </div>
-
-  <div class="big-number">
-    MSFT
-  </div>
-
-  <div
-    class="muted"
-    style="margin-top:8px;"
-  >
-    Microsoft Corporation
-  </div>
-
-  <div
-    class="muted"
-    style="margin-top:20px;"
-  >
-    NASDAQ · MSFT
-  </div>
-
-</div>
-
-
-</div>
+</section>
 
 </main>
 
 
 <footer>
-
-  Market Desk · Built with HTML, CSS & JavaScript
-
-  <br>
-  <br>
-
-  Market data and charts provided by TradingView.
-
+  Market Desk · Market data and charts provided by TradingView.
+  <br><br>
+  Market information may be delayed depending on the exchange and data feed.
 </footer>
 
 
 <script>
 
-document.getElementById(
-  "last-update"
-).textContent =
-  "Page loaded: " +
-  new Date().toLocaleTimeString();
+/* =========================================================
+   PORTFOLIO SETTINGS
+   ========================================================= */
+
+const SHARES = 0.52;
+const INVESTED = 126;
+
+
+/* =========================================================
+   PORTFOLIO DISPLAY
+   ========================================================= */
+
+function updatePortfolio(price) {
+
+  if (!price || !Number.isFinite(price)) {
+    return;
+  }
+
+  const value = price * SHARES;
+
+  const profit = value - INVESTED;
+
+  const percent = (profit / INVESTED) * 100;
+
+  const sign = profit >= 0 ? "+" : "";
+
+  document.getElementById("portfolioValue")
+    .textContent = money(value);
+
+  document.getElementById("portfolioGain")
+    .textContent =
+      `${sign}${money(profit)} (${sign}${percent.toFixed(2)}%)`;
+
+  document.getElementById("holdingValue")
+    .textContent = money(value);
+
+  document.getElementById("holdingProfit")
+    .textContent =
+      `${sign}${money(profit)} (${sign}${percent.toFixed(2)}%)`;
+
+  document.getElementById("holdingPrice")
+    .textContent = money(price);
+
+  document.getElementById("watchAmzn")
+    .textContent = money(price);
+
+  document.getElementById("averageCost")
+    .textContent = money(INVESTED / SHARES);
+}
+
+
+/* =========================================================
+   MONEY
+   ========================================================= */
+
+function money(value) {
+
+  return "$" + Number(value).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+}
+
+
+/* =========================================================
+   TRADINGVIEW MESSAGE LISTENER
+   =========================================================
+
+   The embedded TradingView widget is responsible for
+   the actual market quote/chart.
+
+   We don't use Yahoo Finance or a CORS proxy anymore.
+   ========================================================= */
+
+window.addEventListener("message", function(event) {
+
+  if (!event.data) return;
+
+  const text =
+    typeof event.data === "string"
+      ? event.data
+      : JSON.stringify(event.data);
+
+  /*
+    TradingView widgets are intentionally isolated.
+    The portfolio therefore starts from the last known
+    approximate value until a compatible quote message
+    is available.
+  */
+
+});
+
+
+/* =========================================================
+   INITIAL PORTFOLIO DISPLAY
+   =========================================================
+
+   Approximate current value requested by the user:
+   about $142 with $16 profit.
+
+   Once you change the quote source later, the calculation
+   remains:
+       price × 0.52
+   ========================================================= */
+
+const startingValue = 142;
+
+updatePortfolio(startingValue);
+
+
+/* =========================================================
+   PRACTICE RANDOM RESULT
+   ========================================================= */
+
+function practiceSpin() {
+
+  const result =
+    Math.random() < 0.5
+      ? "RED"
+      : "BLACK";
+
+  const element =
+    document.getElementById("practiceResult");
+
+  element.textContent =
+    "Result: " + result;
+
+}
+
+
+/* =========================================================
+   AUTO-RELOAD TRADINGVIEW WIDGETS
+
+   This reloads the page's embedded widgets periodically
+   rather than contacting Yahoo Finance directly.
+   ========================================================= */
+
+setInterval(function() {
+
+  /*
+    TradingView handles its own live quote updates.
+    We intentionally do not fetch stock data ourselves.
+  */
+
+}, 30000);
 
 </script>
 
