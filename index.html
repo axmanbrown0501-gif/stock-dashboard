@@ -453,7 +453,7 @@ padding:22px 14px 50px;
 <span class="status-dot"></span>Checking market
 </div>
 
-<button class="refresh-top" onclick="loadAllStocks()">↻ Refresh</button>
+<button class="refresh-top" id="refreshButton" onclick="loadAllStocks()">↻ Refresh</button>
 
 </div>
 </header>
@@ -745,79 +745,127 @@ maximumFractionDigits:2
 DATA FETCH
 ----------------------------------------- */
 
-async function fetchJSON(url){
+async function fetchJSON(url, timeoutMs=10000){
+const controller=new AbortController();
+const timer=setTimeout(()=>controller.abort(),timeoutMs);
 
+try{
 const response=await fetch(url,{
-cache:"no-store"
+cache:"no-store",
+signal:controller.signal,
+headers:{
+"Accept":"application/json,text/plain,*/*"
+}
 });
 
 if(!response.ok)
 throw new Error("HTTP "+response.status);
 
-return await response.json();
+const text=await response.text();
+
+if(!text || !text.trim())
+throw new Error("Empty response");
+
+try{
+return JSON.parse(text);
+}catch(e){
+throw new Error("Invalid JSON response");
+}
+
+}finally{
+clearTimeout(timer);
+}
 }
 
 
 async function getStock(ticker){
 
-const now=Math.floor(Date.now()/1000);
-const start=now-400*24*60*60;
+const stamp=Date.now();
 
-const yahoo=
-`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?period1=${start}&period2=${now}&interval=1d&events=history`;
+const yahooBase=
+`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?range=1y&interval=1d&events=history&includePrePost=false&_=${stamp}`;
 
-const yahoo2=
-`https://query2.finance.yahoo.com/v8/finance/chart/${ticker}?period1=${start}&period2=${now}&interval=1d&events=history`;
+const yahooBackup=
+`https://query2.finance.yahoo.com/v8/finance/chart/${ticker}?range=1y&interval=1d&events=history&includePrePost=false&_=${stamp}`;
 
-const proxies=[
-
+const proxyURLs=[
+url=>"https://corsproxy.io/?url="+encodeURIComponent(url),
 url=>"https://api.allorigins.win/raw?url="+encodeURIComponent(url),
-
-url=>"https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(url),
-
-url=>"https://corsproxy.io/?url="+encodeURIComponent(url)
-
+url=>"https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(url)
 ];
+
+let lastError=new Error("No market-data service responded.");
+
+for(const proxy of proxyURLs){
+
+for(const target of [yahooBase,yahooBackup]){
+
+try{
+
+const data=await fetchJSON(proxy(target),10000);
+const result=data?.chart?.result?.[0];
+
+if(result){
+return parseStock(ticker,result);
+}
+
+if(data?.chart?.error){
+throw new Error(
+data.chart.error.description ||
+"Yahoo Finance returned an error."
+);
+}
+
+throw new Error("No stock data in response.");
+
+}catch(error){
+
+console.warn(
+`${ticker}: market-data attempt failed`,
+error.message
+);
+
+lastError=error;
+
+}
+
+}
+
+}
+
+throw lastError;
+}
+
+
+/* -----------------------------------------
+RETRY HELPER
+----------------------------------------- */
+
+async function getStockWithRetry(ticker){
 
 let lastError;
 
-for(const proxy of proxies){
+for(let attempt=1;attempt<=3;attempt++){
 
 try{
+return await getStock(ticker);
+}catch(error){
 
-const data=await fetchJSON(proxy(yahoo));
+lastError=error;
 
-const result=data?.chart?.result?.[0];
+if(attempt<3){
 
-if(result)
-return parseStock(ticker,result);
-
-}catch(e){
-
-lastError=e;
-
-}
-
-try{
-
-const data=await fetchJSON(proxy(yahoo2));
-
-const result=data?.chart?.result?.[0];
-
-if(result)
-return parseStock(ticker,result);
-
-}catch(e){
-
-lastError=e;
+await new Promise(resolve=>
+setTimeout(resolve,700*attempt)
+);
 
 }
 
 }
 
-throw lastError || new Error("No market data");
+}
 
-
+throw lastError || new Error("Market data unavailable.");
 }
 
 
@@ -1138,44 +1186,47 @@ LOAD
 async function loadAllStocks(){
 
 const status=document.getElementById("marketStatus");
+const overviewStatus=document.getElementById("overview-status");
 
 status.innerHTML=
 '<span class="status-dot"></span>Updating';
 
-document.getElementById("overview-status").textContent=
-"Updating";
+overviewStatus.textContent="Updating";
 
 const results=[];
 
 for(const ticker of ["AMZN","MSFT"]){
 
+const price=document.getElementById(`${ticker}-price`);
+const change=document.getElementById(`${ticker}-change`);
+const box=document.getElementById(`${ticker}-error`);
+
+price.textContent="Loading...";
+price.className="price loading";
+
+change.textContent="Updating...";
+change.className="change loading";
+
+box.style.display="none";
+
 try{
 
-const stock=await getStock(ticker);
+const stock=await getStockWithRetry(ticker);
 
 updateStock(stock);
-
 results.push(stock);
 
 }catch(error){
 
 console.error(ticker,error);
 
-const price=document.getElementById(`${ticker}-price`);
-
 price.textContent="—";
-
 price.className="price";
-
-const change=document.getElementById(`${ticker}-change`);
 
 change.textContent="Data unavailable";
 change.className="change";
 
-const box=document.getElementById(`${ticker}-error`);
-
 box.style.display="block";
-
 box.textContent=
 "Market data could not be reached right now. Press Refresh to try again.";
 
@@ -1183,37 +1234,50 @@ box.textContent=
 
 }
 
+/* BOTH WORKED */
+
 if(results.length===2){
 
 status.innerHTML=
 '<span class="status-dot"></span>Market data loaded';
 
-document.getElementById("overview-status").textContent=
-"Online";
+overviewStatus.textContent="Online";
 
-}else if(results.length===1){
+}
+
+/* ONE WORKED */
+
+else if(results.length===1){
 
 status.innerHTML=
 '<span class="status-dot"></span>Partial data';
 
-document.getElementById("overview-status").textContent=
-"Partial";
+overviewStatus.textContent="Partial";
 
-}else{
+}
+
+/* NOTHING WORKED */
+
+else{
 
 status.innerHTML=
 '<span class="status-dot" style="background:#ff4d4d"></span>Data unavailable';
 
-document.getElementById("overview-status").textContent=
-"Offline";
+overviewStatus.textContent="Offline";
 
 }
+
+/* Always record the attempt */
 
 document.getElementById("last-update").textContent=
 "Last update: "+new Date().toLocaleTimeString();
 
 }
 
+
+/* -----------------------------------------
+START
+----------------------------------------- */
 
 /* -----------------------------------------
 START
