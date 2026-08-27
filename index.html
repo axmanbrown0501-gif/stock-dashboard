@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -335,12 +334,6 @@ text-align:right;
 font-weight:650;
 }
 
-.activity{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:18px;
-}
-
 .activity-item{
 padding:15px 0;
 border-bottom:1px solid #24282e;
@@ -415,9 +408,9 @@ font-size:12px;
 }
 
 @media(max-width:850px){
+
 .grid,
 .overview-grid,
-.activity,
 .portfolio-grid{
 grid-template-columns:1fr;
 }
@@ -429,33 +422,50 @@ padding:0 16px;
 main{
 padding:22px 14px 50px;
 }
+
 }
 
 @media(max-width:550px){
-.price{font-size:31px}
-.portfolio-value{font-size:32px}
-.details{grid-template-columns:1fr}
+
+.price{
+font-size:31px;
+}
+
+.portfolio-value{
+font-size:32px;
+}
+
+.details{
+grid-template-columns:1fr;
+}
+
 }
 </style>
-
 </head>
 
 <body>
 
 <header>
+
 <div class="brand">
 <div class="logo">↗</div>
 <span>Market Desk</span>
 </div>
 
 <div class="header-right">
+
 <div class="market-status" id="marketStatus">
 <span class="status-dot"></span>Checking market
 </div>
 
-<button class="refresh-top" id="refreshButton" onclick="loadAllStocks()">↻ Refresh</button>
+<button
+class="refresh-top"
+onclick="loadAllStocks()">
+↻ Refresh
+</button>
 
 </div>
+
 </header>
 
 <main>
@@ -463,36 +473,69 @@ padding:22px 14px 50px;
 <div class="page-title">Investing</div>
 <div class="page-subtitle">Your market dashboard</div>
 
+
 <!-- STOCKS -->
 
 <div class="grid">
 
+<!-- AMAZON -->
+
 <div class="card stock-card">
+
 <div class="stock-head">
+
 <div>
 <div class="ticker">AMZN</div>
 <div class="company">Amazon.com, Inc.</div>
 </div>
+
 <div class="watch">☆</div>
+
 </div>
 
-<div class="price loading" id="AMZN-price">Loading...</div>
-<div class="change loading" id="AMZN-change">Updating...</div>
+<div class="price loading" id="AMZN-price">
+Loading...
+</div>
+
+<div class="change loading" id="AMZN-change">
+Updating...
+</div>
 
 <div class="chart-box">
 <canvas id="AMZN-chart"></canvas>
 </div>
 
 <div class="range-buttons">
-<button class="active" onclick="setRange('AMZN','1d',this)">1D</button>
-<button onclick="setRange('AMZN','1w',this)">1W</button>
-<button onclick="setRange('AMZN','1m',this)">1M</button>
-<button onclick="setRange('AMZN','3m',this)">3M</button>
-<button onclick="setRange('AMZN','1y',this)">1Y</button>
-<button onclick="setRange('AMZN','all',this)">ALL</button>
+
+<button class="active"
+onclick="setRange('AMZN','1d',this)">
+1D
+</button>
+
+<button onclick="setRange('AMZN','1w',this)">
+1W
+</button>
+
+<button onclick="setRange('AMZN','1m',this)">
+1M
+</button>
+
+<button onclick="setRange('AMZN','3m',this)">
+3M
+</button>
+
+<button onclick="setRange('AMZN','1y',this)">
+1Y
+</button>
+
+<button onclick="setRange('AMZN','all',this)">
+ALL
+</button>
+
 </div>
 
 <div class="details">
+
 <div class="detail">
 <div class="detail-label">Previous Close</div>
 <div class="detail-value" id="AMZN-prev">—</div>
@@ -507,37 +550,72 @@ padding:22px 14px 50px;
 <div class="detail-label">Day Low</div>
 <div class="detail-value" id="AMZN-low">—</div>
 </div>
+
 </div>
 
 <div class="error" id="AMZN-error"></div>
+
 </div>
 
+
+<!-- MICROSOFT -->
+
 <div class="card stock-card">
+
 <div class="stock-head">
+
 <div>
 <div class="ticker">MSFT</div>
 <div class="company">Microsoft Corporation</div>
 </div>
+
 <div class="watch">☆</div>
+
 </div>
 
-<div class="price loading" id="MSFT-price">Loading...</div>
-<div class="change loading" id="MSFT-change">Updating...</div>
+<div class="price loading" id="MSFT-price">
+Loading...
+</div>
+
+<div class="change loading" id="MSFT-change">
+Updating...
+</div>
 
 <div class="chart-box">
 <canvas id="MSFT-chart"></canvas>
 </div>
 
 <div class="range-buttons">
-<button class="active" onclick="setRange('MSFT','1d',this)">1D</button>
-<button onclick="setRange('MSFT','1w',this)">1W</button>
-<button onclick="setRange('MSFT','1m',this)">1M</button>
-<button onclick="setRange('MSFT','3m',this)">3M</button>
-<button onclick="setRange('MSFT','1y',this)">1Y</button>
-<button onclick="setRange('MSFT','all',this)">ALL</button>
+
+<button class="active"
+onclick="setRange('MSFT','1d',this)">
+1D
+</button>
+
+<button onclick="setRange('MSFT','1w',this)">
+1W
+</button>
+
+<button onclick="setRange('MSFT','1m',this)">
+1M
+</button>
+
+<button onclick="setRange('MSFT','3m',this)">
+3M
+</button>
+
+<button onclick="setRange('MSFT','1y',this)">
+1Y
+</button>
+
+<button onclick="setRange('MSFT','all',this)">
+ALL
+</button>
+
 </div>
 
 <div class="details">
+
 <div class="detail">
 <div class="detail-label">Previous Close</div>
 <div class="detail-value" id="MSFT-prev">—</div>
@@ -552,48 +630,86 @@ padding:22px 14px 50px;
 <div class="detail-label">Day Low</div>
 <div class="detail-value" id="MSFT-low">—</div>
 </div>
+
 </div>
 
 <div class="error" id="MSFT-error"></div>
+
 </div>
 
 </div>
+
 
 <!-- PORTFOLIO -->
 
 <div class="section">
-<div class="section-title">Portfolio</div>
+
+<div class="section-title">
+Portfolio
+</div>
 
 <div class="portfolio">
 
 <div class="portfolio-top">
+
 <div>
-<div class="portfolio-label">Portfolio value</div>
-<div class="portfolio-value" id="portfolio-value">$—</div>
+
+<div class="portfolio-label">
+Portfolio value
+</div>
+
+<div class="portfolio-value" id="portfolio-value">
+$163.39
+</div>
 
 <div class="portfolio-gain up" id="portfolio-gain">
-+$16.00 (+—%)
-</div>
++$37.39 (+29.67%)
 </div>
 
-<div class="portfolio-label">Today</div>
+</div>
+
+<div class="portfolio-label">
+Today
+</div>
+
 </div>
 
 <div class="portfolio-grid">
 
 <div class="portfolio-stat">
-<div class="stat-label">Invested</div>
-<div class="stat-value">$126.00</div>
+
+<div class="stat-label">
+Invested
+</div>
+
+<div class="stat-value">
+$126.00
+</div>
+
 </div>
 
 <div class="portfolio-stat">
-<div class="stat-label">Total return</div>
-<div class="stat-value up" id="total-return">+$16.00</div>
+
+<div class="stat-label">
+Total return
+</div>
+
+<div class="stat-value up" id="total-return">
++$37.39
+</div>
+
 </div>
 
 <div class="portfolio-stat">
-<div class="stat-label">Buying power</div>
-<div class="stat-value">$0.00</div>
+
+<div class="stat-label">
+Buying power
+</div>
+
+<div class="stat-value">
+$0.00
+</div>
+
 </div>
 
 </div>
@@ -601,105 +717,218 @@ padding:22px 14px 50px;
 <div class="holding">
 
 <div class="holding-left">
-<div class="company-icon">A</div>
+
+<div class="company-icon">
+A
+</div>
 
 <div>
-<div class="holding-name">Amazon</div>
-<div class="holding-shares">AMZN · 0.52 shares</div>
+
+<div class="holding-name">
+Amazon
 </div>
+
+<div class="holding-shares">
+AMZN · 0.621366 shares
+</div>
+
+</div>
+
 </div>
 
 <div class="holding-price">
-<div id="holding-value">$—</div>
-<div class="up" id="holding-gain">+$—</div>
+
+<div id="holding-value">
+$—
+</div>
+
+<div class="up" id="holding-gain">
++$—
 </div>
 
 </div>
 
 </div>
+
 </div>
+
+</div>
+
 
 <!-- MARKET OVERVIEW -->
 
 <div class="section">
-<div class="section-title">Market Overview</div>
-<div class="section-subtitle">Today's market snapshot</div>
+
+<div class="section-title">
+Market Overview
+</div>
+
+<div class="section-subtitle">
+Today's market snapshot
+</div>
 
 <div class="overview-grid">
 
 <div class="overview-card">
-<div class="overview-label">Amazon</div>
-<div class="overview-value" id="overview-amzn">$—</div>
-<div class="up" id="overview-amzn-change">—</div>
+
+<div class="overview-label">
+Amazon
+</div>
+
+<div class="overview-value" id="overview-amzn">
+$—
+</div>
+
+<div id="overview-amzn-change">
+—
+</div>
+
 </div>
 
 <div class="overview-card">
-<div class="overview-label">Microsoft</div>
-<div class="overview-value" id="overview-msft">$—</div>
-<div class="up" id="overview-msft-change">—</div>
+
+<div class="overview-label">
+Microsoft
+</div>
+
+<div class="overview-value" id="overview-msft">
+$—
+</div>
+
+<div id="overview-msft-change">
+—
+</div>
+
 </div>
 
 <div class="overview-card">
-<div class="overview-label">Dashboard status</div>
-<div class="overview-value" id="overview-status">Loading</div>
-<div class="news" id="last-update">Waiting for data...</div>
+
+<div class="overview-label">
+Dashboard status
+</div>
+
+<div class="overview-value" id="overview-status">
+Loading
+</div>
+
+<div class="news" id="last-update">
+Waiting for data...
 </div>
 
 </div>
+
 </div>
+
+</div>
+
 
 <!-- WATCHLIST -->
 
 <div class="section">
-<div class="section-title">Watchlist</div>
+
+<div class="section-title">
+Watchlist
+</div>
 
 <div class="card">
 
 <div class="activity-item">
+
 <div>
-<div class="activity-name">Amazon</div>
-<div class="activity-date">AMZN</div>
+
+<div class="activity-name">
+Amazon
 </div>
-<div class="activity-amount" id="watch-amzn">$—</div>
+
+<div class="activity-date">
+AMZN
+</div>
+
+</div>
+
+<div class="activity-amount" id="watch-amzn">
+$—
+</div>
+
 </div>
 
 <div class="activity-item">
+
 <div>
-<div class="activity-name">Microsoft</div>
-<div class="activity-date">MSFT</div>
+
+<div class="activity-name">
+Microsoft
 </div>
-<div class="activity-amount" id="watch-msft">$—</div>
+
+<div class="activity-date">
+MSFT
 </div>
 
 </div>
+
+<div class="activity-amount" id="watch-msft">
+$—
 </div>
+
+</div>
+
+</div>
+
+</div>
+
 
 <!-- RECENT ACTIVITY -->
 
 <div class="section">
-<div class="section-title">Recent Activity</div>
+
+<div class="section-title">
+Recent Activity
+</div>
 
 <div class="card">
 
 <div class="activity-item">
+
 <div>
-<div class="activity-name">Amazon position</div>
-<div class="activity-date">0.52 shares held</div>
+
+<div class="activity-name">
+Amazon position
 </div>
 
-<div class="activity-amount">$126.00 invested</div>
+<div class="activity-date">
+0.621366 shares held
+</div>
+
+</div>
+
+<div class="activity-amount">
+$126.00 invested
+</div>
+
 </div>
 
 <div class="activity-item">
+
 <div>
-<div class="activity-name">Portfolio growth</div>
-<div class="activity-date">Current estimate</div>
+
+<div class="activity-name">
+Portfolio growth
 </div>
 
-<div class="activity-amount up">+$16.00</div>
+<div class="activity-date">
+Current estimate
 </div>
 
 </div>
+
+<div class="activity-amount up">
++$37.39
+</div>
+
+</div>
+
+</div>
+
 </div>
 
 </main>
@@ -709,592 +938,1062 @@ Market Desk · Practice portfolio dashboard<br>
 Market prices may be delayed.
 </footer>
 
+
 <script>
 
-const stocks={
+/* =====================================================
+   🔑 PUT YOUR API KEY RIGHT HERE
+   ===================================================== */
+
+const ALPHA_VANTAGE_KEY = "2Y4YSFK4F9PU3T9E";
+
+
+/* =====================================================
+   PORTFOLIO SETTINGS
+   ===================================================== */
+
+const PORTFOLIO_VALUE = 163.39;
+const AMZN_SHARES = 0.621366;
+const INVESTED = 126.00;
+
+
+/* =====================================================
+   STOCKS
+   ===================================================== */
+
+const stocks = {
+
 AMZN:{
 chart:"AMZN-chart",
 range:"1d",
 data:null
 },
+
 MSFT:{
 chart:"MSFT-chart",
 range:"1d",
 data:null
 }
+
 };
 
 
-/* -----------------------------------------
-FORMAT
------------------------------------------ */
+/* =====================================================
+   FORMAT MONEY
+   ===================================================== */
 
 function money(value){
 
-if(value===null || value===undefined || !isFinite(value))
+if(
+value === null ||
+value === undefined ||
+!isFinite(value)
+){
 return "—";
+}
 
-return "$"+Number(value).toLocaleString("en-US",{
+return "$" +
+Number(value).toLocaleString(
+"en-US",
+{
 minimumFractionDigits:2,
 maximumFractionDigits:2
-});
+}
+);
+
 }
 
 
-/* -----------------------------------------
-DATA FETCH
------------------------------------------ */
+/* =====================================================
+   API REQUEST
+   ===================================================== */
 
-async function fetchJSON(url, timeoutMs=10000){
-const controller=new AbortController();
-const timer=setTimeout(()=>controller.abort(),timeoutMs);
+async function fetchJSON(url){
+
+const controller =
+new AbortController();
+
+const timeout =
+setTimeout(
+()=>controller.abort(),
+15000
+);
 
 try{
-const response=await fetch(url,{
-cache:"no-store",
-signal:controller.signal,
-headers:{
-"Accept":"application/json,text/plain,*/*"
+
+const response =
+await fetch(
+url,
+{
+cache:"no-store"
 }
-});
+);
 
-if(!response.ok)
-throw new Error("HTTP "+response.status);
+if(!response.ok){
 
-const text=await response.text();
+throw new Error(
+"HTTP " + response.status
+);
 
-if(!text || !text.trim())
-throw new Error("Empty response");
-
-try{
-return JSON.parse(text);
-}catch(e){
-throw new Error("Invalid JSON response");
 }
 
-}finally{
-clearTimeout(timer);
-}
+return await response.json();
+
 }
 
+finally{
+
+clearTimeout(timeout);
+
+}
+
+}
+
+
+/* =====================================================
+   GET INTRADAY DATA
+   ===================================================== */
+
+async function getIntraday(ticker){
+
+if(!ALPHA_VANTAGE_KEY){
+
+throw new Error(
+"API key missing. Put your key at the top of the JavaScript."
+);
+
+}
+
+const url =
+"https://www.alphavantage.co/query" +
+
+"?function=TIME_SERIES_INTRADAY" +
+
+"&symbol=" +
+encodeURIComponent(ticker) +
+
+"&interval=1min" +
+
+"&outputsize=compact" +
+
+"&entitlement=delayed" +
+
+"&apikey=" +
+encodeURIComponent(
+ALPHA_VANTAGE_KEY
+);
+
+
+const data =
+await fetchJSON(url);
+
+
+if(data["Error Message"]){
+
+throw new Error(
+data["Error Message"]
+);
+
+}
+
+if(data["Note"]){
+
+throw new Error(
+"API limit reached. Try Refresh again later."
+);
+
+}
+
+
+const seriesKey =
+Object.keys(data).find(
+key =>
+key.toLowerCase()
+.includes("time series")
+);
+
+
+if(!seriesKey){
+
+throw new Error(
+"No intraday chart data returned."
+);
+
+}
+
+
+const series =
+data[seriesKey];
+
+
+const points =
+Object.entries(series)
+
+.map(
+([timestamp,value])=>({
+
+timestamp,
+
+open:
+Number(value["1. open"]),
+
+high:
+Number(value["2. high"]),
+
+low:
+Number(value["3. low"]),
+
+close:
+Number(value["4. close"]),
+
+volume:
+Number(value["5. volume"])
+
+})
+)
+
+.filter(
+p=>isFinite(p.close)
+)
+
+.sort(
+(a,b)=>
+new Date(a.timestamp) -
+new Date(b.timestamp)
+);
+
+
+if(!points.length){
+
+throw new Error(
+"Chart data was empty."
+);
+
+}
+
+return points;
+
+}
+
+
+/* =====================================================
+   GET DAILY DATA
+   ===================================================== */
+
+async function getDaily(ticker){
+
+const url =
+"https://www.alphavantage.co/query" +
+
+"?function=TIME_SERIES_DAILY" +
+
+"&symbol=" +
+encodeURIComponent(ticker) +
+
+"&outputsize=full" +
+
+"&apikey=" +
+encodeURIComponent(
+ALPHA_VANTAGE_KEY
+);
+
+
+const data =
+await fetchJSON(url);
+
+
+if(data["Error Message"]){
+
+throw new Error(
+data["Error Message"]
+);
+
+}
+
+if(data["Note"]){
+
+throw new Error(
+"API limit reached. Try Refresh again later."
+);
+
+}
+
+
+const seriesKey =
+Object.keys(data).find(
+key =>
+key.toLowerCase()
+.includes("time series")
+);
+
+
+if(!seriesKey){
+
+throw new Error(
+"No daily data returned."
+);
+
+}
+
+
+const series =
+data[seriesKey];
+
+
+const points =
+Object.entries(series)
+
+.map(
+([timestamp,value])=>({
+
+timestamp,
+
+open:
+Number(value["1. open"]),
+
+high:
+Number(value["2. high"]),
+
+low:
+Number(value["3. low"]),
+
+close:
+Number(value["4. close"])
+
+})
+)
+
+.filter(
+p=>isFinite(p.close)
+)
+
+.sort(
+(a,b)=>
+new Date(a.timestamp) -
+new Date(b.timestamp)
+);
+
+
+return points;
+
+}
+
+
+/* =====================================================
+   GET STOCK
+   ===================================================== */
 
 async function getStock(ticker){
 
-const stamp=Date.now();
+const intraday =
+await getIntraday(ticker);
 
-const yahooBase=
-`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?range=1y&interval=1d&events=history&includePrePost=false&_=${stamp}`;
+const daily =
+await getDaily(ticker);
 
-const yahooBackup=
-`https://query2.finance.yahoo.com/v8/finance/chart/${ticker}?range=1y&interval=1d&events=history&includePrePost=false&_=${stamp}`;
 
-const proxyURLs=[
-url=>"https://corsproxy.io/?url="+encodeURIComponent(url),
-url=>"https://api.allorigins.win/raw?url="+encodeURIComponent(url),
-url=>"https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(url)
+const latest =
+intraday[
+intraday.length-1
 ];
 
-let lastError=new Error("No market-data service responded.");
 
-for(const proxy of proxyURLs){
+const previous =
+daily.length >= 2
+? daily[daily.length-2].close
+: latest.close;
 
-for(const target of [yahooBase,yahooBackup]){
 
-try{
+const change =
+latest.close - previous;
 
-const data=await fetchJSON(proxy(target),10000);
-const result=data?.chart?.result?.[0];
 
-if(result){
-return parseStock(ticker,result);
-}
+const percent =
+previous !== 0
+? change / previous * 100
+: 0;
 
-if(data?.chart?.error){
-throw new Error(
-data.chart.error.description ||
-"Yahoo Finance returned an error."
-);
-}
 
-throw new Error("No stock data in response.");
-
-}catch(error){
-
-console.warn(
-`${ticker}: market-data attempt failed`,
-error.message
+const high =
+Math.max(
+...intraday.map(
+p=>p.high
+)
 );
 
-lastError=error;
 
-}
-
-}
-
-}
-
-throw lastError;
-}
-
-
-/* -----------------------------------------
-RETRY HELPER
------------------------------------------ */
-
-async function getStockWithRetry(ticker){
-
-let lastError;
-
-for(let attempt=1;attempt<=3;attempt++){
-
-try{
-return await getStock(ticker);
-}catch(error){
-
-lastError=error;
-
-if(attempt<3){
-
-await new Promise(resolve=>
-setTimeout(resolve,700*attempt)
+const low =
+Math.min(
+...intraday.map(
+p=>p.low
+)
 );
 
-}
-
-}
-
-}
-
-throw lastError || new Error("Market data unavailable.");
-}
-
-
-/* -----------------------------------------
-PARSE STOCK
------------------------------------------ */
-
-function parseStock(ticker,result){
-
-const meta=result.meta;
-const quote=result.indicators.quote[0];
-
-const closes=(quote.close||[]).map(Number).filter(isFinite);
-
-const highs=(quote.high||[]).map(Number).filter(isFinite);
-
-const lows=(quote.low||[]).map(Number).filter(isFinite);
-
-if(closes.length<2)
-throw new Error("Not enough data");
-
-const price=
-meta.regularMarketPrice ??
-closes[closes.length-1];
-
-const previous=
-meta.previousClose ??
-closes[closes.length-2];
-
-const change=price-previous;
-
-const percent=previous ? change/previous*100 : 0;
 
 return{
+
 ticker,
-price,
+
+price:latest.close,
+
 previous,
+
 change,
+
 percent,
-high:meta.regularMarketDayHigh ?? highs[highs.length-1],
-low:meta.regularMarketDayLow ?? lows[lows.length-1],
-closes,
-timestamps:result.timestamp||[]
+
+high,
+
+low,
+
+intraday,
+
+daily
+
 };
 
 }
 
 
-/* -----------------------------------------
-DRAW CHART
------------------------------------------ */
+/* =====================================================
+   DRAW CHART
+   ===================================================== */
 
 function drawChart(ticker){
 
-const stock=stocks[ticker];
+const stock =
+stocks[ticker];
 
-if(!stock.data)return;
-
-const canvas=document.getElementById(stock.chart);
-
-const box=canvas.getBoundingClientRect();
-
-const ratio=window.devicePixelRatio||1;
-
-canvas.width=box.width*ratio;
-canvas.height=box.height*ratio;
-
-const ctx=canvas.getContext("2d");
-
-ctx.setTransform(ratio,0,0,ratio,0,0);
-
-const width=box.width;
-const height=box.height;
-
-ctx.clearRect(0,0,width,height);
-
-let prices=[...stock.data.closes];
-
-const range=stock.range;
+if(!stock.data)
+return;
 
 
-/*
-1D:
-Only show the most recent section.
-Because the Yahoo daily endpoint doesn't provide
-true one-minute candles, this uses the newest
-available daily observations rather than pretending
-old days are today's intraday data.
-*/
+const canvas =
+document.getElementById(
+stock.chart
+);
 
-if(range==="1d"){
+const box =
+canvas.getBoundingClientRect();
 
-prices=prices.slice(-1);
+const ratio =
+window.devicePixelRatio || 1;
+
+canvas.width =
+box.width * ratio;
+
+canvas.height =
+box.height * ratio;
+
+
+const ctx =
+canvas.getContext("2d");
+
+ctx.setTransform(
+ratio,
+0,
+0,
+ratio,
+0,
+0
+);
+
+
+const width =
+box.width;
+
+const height =
+box.height;
+
+
+ctx.clearRect(
+0,
+0,
+width,
+height
+);
+
+
+let points;
+
+
+if(stock.range === "1d"){
+
+points =
+stock.data.intraday;
 
 }
 
-/*
-Other ranges
-*/
+else{
 
-if(range==="1w")
-prices=prices.slice(-7);
+let days;
 
-if(range==="1m")
-prices=prices.slice(-30);
+if(stock.range==="1w")
+days=7;
 
-if(range==="3m")
-prices=prices.slice(-90);
+else if(stock.range==="1m")
+days=30;
 
-if(range==="1y")
-prices=prices.slice(-252);
+else if(stock.range==="3m")
+days=90;
 
-if(prices.length<2){
+else if(stock.range==="1y")
+days=252;
 
-ctx.fillStyle="#555a61";
-ctx.font="13px Arial";
-ctx.fillText("Chart data loading...",20,height/2);
+else
+days=stock.data.daily.length;
+
+
+points =
+stock.data.daily.slice(-days);
+
+}
+
+
+const prices =
+points
+.map(p=>p.close)
+.filter(isFinite);
+
+
+if(prices.length < 2){
+
+ctx.fillStyle =
+"#555a61";
+
+ctx.font =
+"13px Arial";
+
+ctx.fillText(
+"Chart data unavailable",
+20,
+height/2
+);
 
 return;
 
 }
 
-const min=Math.min(...prices);
-const max=Math.max(...prices);
-const rangeValue=max-min||1;
+
+const min =
+Math.min(...prices);
+
+const max =
+Math.max(...prices);
+
+const valueRange =
+max-min || 1;
 
 const pad=18;
 
-ctx.strokeStyle="#171a1f";
+
+/* Grid */
+
+ctx.strokeStyle =
+"#171a1f";
+
 ctx.lineWidth=1;
 
-for(let i=1;i<5;i++){
 
-const y=pad+(height-pad*2)*i/5;
+for(
+let i=1;
+i<5;
+i++
+){
+
+const y =
+pad +
+(height-pad*2) *
+i/5;
 
 ctx.beginPath();
-ctx.moveTo(0,y);
-ctx.lineTo(width,y);
+
+ctx.moveTo(
+0,
+y
+);
+
+ctx.lineTo(
+width,
+y
+);
+
 ctx.stroke();
 
 }
 
+
+/* Line */
+
 ctx.beginPath();
 
-prices.forEach((p,i)=>{
 
-const x=pad+(width-pad*2)*i/(prices.length-1);
+prices.forEach(
+(price,i)=>{
 
-const y=
-height-pad-
-((p-min)/rangeValue)*(height-pad*2);
+const x =
+pad +
+(width-pad*2) *
+i /
+(prices.length-1);
+
+
+const y =
+height-pad -
+(
+(price-min) /
+valueRange
+) *
+(height-pad*2);
+
 
 if(i===0)
 ctx.moveTo(x,y);
+
 else
 ctx.lineTo(x,y);
 
-});
+}
+);
 
-ctx.strokeStyle=
-stock.data.change>=0 ? "#00c805" : "#ff4d4d";
+
+ctx.strokeStyle =
+stock.data.change >= 0
+? "#00c805"
+: "#ff4d4d";
 
 ctx.lineWidth=3;
+
 ctx.lineJoin="round";
+
 ctx.lineCap="round";
+
 ctx.stroke();
 
 }
 
 
-/* -----------------------------------------
-UPDATE CARD
------------------------------------------ */
+/* =====================================================
+   UPDATE STOCK CARD
+   ===================================================== */
 
 function updateStock(stock){
 
-const t=stock.ticker;
+const ticker =
+stock.ticker;
 
-stocks[t].data=stock;
+stocks[ticker].data =
+stock;
 
-const price=document.getElementById(`${t}-price`);
 
-price.textContent=money(stock.price);
-price.className="price";
+const price =
+document.getElementById(
+`${ticker}-price`
+);
 
-const change=document.getElementById(`${t}-change`);
+price.textContent =
+money(stock.price);
 
-const sign=stock.change>=0?"+":"";
+price.className =
+"price";
 
-change.textContent=
+
+const change =
+document.getElementById(
+`${ticker}-change`
+);
+
+const sign =
+stock.change >= 0
+? "+"
+: "";
+
+
+change.textContent =
 `${sign}${money(stock.change)} (${sign}${stock.percent.toFixed(2)}%)`;
 
-change.className=
-"change "+(stock.change>=0?"up":"down");
+change.className =
+"change " +
+(
+stock.change >= 0
+? "up"
+: "down"
+);
 
-document.getElementById(`${t}-prev`).textContent=
+
+document.getElementById(
+`${ticker}-prev`
+).textContent =
 money(stock.previous);
 
-document.getElementById(`${t}-high`).textContent=
+
+document.getElementById(
+`${ticker}-high`
+).textContent =
 money(stock.high);
 
-document.getElementById(`${t}-low`).textContent=
+
+document.getElementById(
+`${ticker}-low`
+).textContent =
 money(stock.low);
 
-document.getElementById(`${t}-error`).style.display="none";
 
-if(t==="AMZN"){
+document.getElementById(
+`${ticker}-error`
+).style.display =
+"none";
 
-document.getElementById("overview-amzn").textContent=
+
+if(ticker==="AMZN"){
+
+document.getElementById(
+"overview-amzn"
+).textContent =
 money(stock.price);
 
-document.getElementById("overview-amzn-change").textContent=
+
+document.getElementById(
+"overview-amzn-change"
+).textContent =
 `${sign}${stock.percent.toFixed(2)}% today`;
 
-document.getElementById("overview-amzn-change").className=
-stock.change>=0?"up":"down";
+document.getElementById(
+"overview-amzn-change"
+).className =
+stock.change >= 0
+? "up"
+: "down";
 
-document.getElementById("watch-amzn").textContent=
+
+document.getElementById(
+"watch-amzn"
+).textContent =
 money(stock.price);
 
 }
 
-if(t==="MSFT"){
 
-document.getElementById("overview-msft").textContent=
+if(ticker==="MSFT"){
+
+document.getElementById(
+"overview-msft"
+).textContent =
 money(stock.price);
 
-document.getElementById("overview-msft-change").textContent=
+
+document.getElementById(
+"overview-msft-change"
+).textContent =
 `${sign}${stock.percent.toFixed(2)}% today`;
 
-document.getElementById("overview-msft-change").className=
-stock.change>=0?"up":"down";
+document.getElementById(
+"overview-msft-change"
+).className =
+stock.change >= 0
+? "up"
+: "down";
 
-document.getElementById("watch-msft").textContent=
+
+document.getElementById(
+"watch-msft"
+).textContent =
 money(stock.price);
 
 }
 
-drawChart(t);
+
+drawChart(ticker);
 
 updatePortfolio();
 
 }
 
 
-/* -----------------------------------------
-PORTFOLIO
------------------------------------------ */
+/* =====================================================
+   UPDATE PORTFOLIO
+   ===================================================== */
 
 function updatePortfolio(){
 
-const amazon=stocks.AMZN.data;
+const amazon =
+stocks.AMZN.data;
 
-if(!amazon)return;
 
-/*
-0.52 Amazon shares.
-Portfolio starts from the user's approximate
-$126 invested amount and displays the current
-market value based on the live AMZN price.
+document.getElementById(
+"portfolio-value"
+).textContent =
+money(PORTFOLIO_VALUE);
 
-The displayed total-return amount is kept at
-approximately $16 rather than pretending we know
-the exact historical deposits.
-*/
 
-const shares=0.52;
+const totalReturn =
+PORTFOLIO_VALUE -
+INVESTED;
 
-const holdingValue=amazon.price*shares;
 
-const estimatedPortfolio=
-holdingValue + (126-holdingValue) + 16;
+const sign =
+totalReturn >= 0
+? "+"
+: "";
 
-document.getElementById("portfolio-value").textContent=
-money(estimatedPortfolio);
 
-document.getElementById("holding-value").textContent=
+const percent =
+INVESTED !== 0
+? totalReturn / INVESTED * 100
+: 0;
+
+
+document.getElementById(
+"total-return"
+).textContent =
+`${sign}${money(totalReturn)}`;
+
+
+document.getElementById(
+"portfolio-gain"
+).textContent =
+`${sign}${money(totalReturn)} (${sign}${percent.toFixed(2)}%)`;
+
+
+if(!amazon)
+return;
+
+
+const holdingValue =
+amazon.price *
+AMZN_SHARES;
+
+
+document.getElementById(
+"holding-value"
+).textContent =
 money(holdingValue);
 
-document.getElementById("holding-gain").textContent=
-"+$"+holdingValue.toFixed(2);
 
-document.getElementById("total-return").textContent=
-"+$16.00";
+const holdingGain =
+holdingValue -
+INVESTED;
 
-const percent=(16/126)*100;
 
-document.getElementById("portfolio-gain").textContent=
-`+$16.00 (+${percent.toFixed(2)}%)`;
+const holdingSign =
+holdingGain >= 0
+? "+"
+: "";
+
+
+document.getElementById(
+"holding-gain"
+).textContent =
+`${holdingSign}${money(holdingGain)}`;
 
 }
 
 
-/* -----------------------------------------
-RANGE
------------------------------------------ */
+/* =====================================================
+   RANGE BUTTONS
+   ===================================================== */
 
-function setRange(ticker,range,button){
+function setRange(
+ticker,
+range,
+button
+){
 
-stocks[ticker].range=range;
+stocks[ticker].range =
+range;
 
-const parent=button.parentElement;
 
-parent.querySelectorAll("button")
-.forEach(b=>b.classList.remove("active"));
+button.parentElement
+.querySelectorAll("button")
+.forEach(
+b=>b.classList.remove("active")
+);
 
-button.classList.add("active");
+
+button.classList.add(
+"active"
+);
+
 
 drawChart(ticker);
 
 }
 
 
-/* -----------------------------------------
-LOAD
------------------------------------------ */
+/* =====================================================
+   LOAD STOCKS
+   ===================================================== */
 
 async function loadAllStocks(){
 
-const status=document.getElementById("marketStatus");
-const overviewStatus=document.getElementById("overview-status");
+const status =
+document.getElementById(
+"marketStatus"
+);
 
-status.innerHTML=
+const overviewStatus =
+document.getElementById(
+"overview-status"
+);
+
+
+status.innerHTML =
 '<span class="status-dot"></span>Updating';
 
-overviewStatus.textContent="Updating";
+overviewStatus.textContent =
+"Updating";
+
 
 const results=[];
 
-for(const ticker of ["AMZN","MSFT"]){
 
-const price=document.getElementById(`${ticker}-price`);
-const change=document.getElementById(`${ticker}-change`);
-const box=document.getElementById(`${ticker}-error`);
+for(
+const ticker of
+["AMZN","MSFT"]
+){
 
-price.textContent="Loading...";
-price.className="price loading";
+const price =
+document.getElementById(
+`${ticker}-price`
+);
 
-change.textContent="Updating...";
-change.className="change loading";
+const change =
+document.getElementById(
+`${ticker}-change`
+);
 
-box.style.display="none";
+const errorBox =
+document.getElementById(
+`${ticker}-error`
+);
+
+
+price.textContent =
+"Loading...";
+
+price.className =
+"price loading";
+
+
+change.textContent =
+"Updating...";
+
+change.className =
+"change loading";
+
+
+errorBox.style.display =
+"none";
+
 
 try{
 
-const stock=await getStockWithRetry(ticker);
+const stock =
+await getStock(ticker);
 
 updateStock(stock);
+
 results.push(stock);
 
-}catch(error){
+}
 
-console.error(ticker,error);
+catch(error){
 
-price.textContent="—";
-price.className="price";
+console.error(
+ticker,
+error
+);
 
-change.textContent="Data unavailable";
-change.className="change";
 
-box.style.display="block";
-box.textContent=
-"Market data could not be reached right now. Press Refresh to try again.";
+price.textContent =
+"—";
+
+price.className =
+"price";
+
+
+change.textContent =
+"Data unavailable";
+
+change.className =
+"change";
+
+
+errorBox.style.display =
+"block";
+
+errorBox.textContent =
+error.message ||
+"Market data unavailable.";
 
 }
 
 }
 
-/* BOTH WORKED */
 
 if(results.length===2){
 
-status.innerHTML=
+status.innerHTML =
 '<span class="status-dot"></span>Market data loaded';
 
-overviewStatus.textContent="Online";
+overviewStatus.textContent =
+"Online";
 
 }
-
-/* ONE WORKED */
 
 else if(results.length===1){
 
-status.innerHTML=
+status.innerHTML =
 '<span class="status-dot"></span>Partial data';
 
-overviewStatus.textContent="Partial";
+overviewStatus.textContent =
+"Partial";
 
 }
-
-/* NOTHING WORKED */
 
 else{
 
-status.innerHTML=
+status.innerHTML =
 '<span class="status-dot" style="background:#ff4d4d"></span>Data unavailable';
 
-overviewStatus.textContent="Offline";
-
-}
-
-/* Always record the attempt */
-
-document.getElementById("last-update").textContent=
-"Last update: "+new Date().toLocaleTimeString();
+overviewStatus.textContent =
+"Offline";
 
 }
 
 
-/* -----------------------------------------
-START
------------------------------------------ */
+document.getElementById(
+"last-update"
+).textContent =
+"Last update: " +
+new Date().toLocaleTimeString();
 
-/* -----------------------------------------
-START
------------------------------------------ */
+}
+
+
+/* =====================================================
+   START
+   ===================================================== */
 
 loadAllStocks();
 
-/* Refresh approximately every 5 minutes */
 
-setInterval(loadAllStocks,5*60*1000);
+setInterval(
+loadAllStocks,
+5*60*1000
+);
 
-window.addEventListener("resize",()=>{
+
+window.addEventListener(
+"resize",
+()=>{
 
 drawChart("AMZN");
+
 drawChart("MSFT");
 
-});
+}
+);
 
 </script>
 
