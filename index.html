@@ -1,2001 +1,663 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Market Desk</title>
-
-<style>
-*{box-sizing:border-box}
-
-body{
-margin:0;
-background:#05070a;
-color:#f5f5f5;
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-}
-
-button{font:inherit}
-
-header{
-height:76px;
-border-bottom:1px solid #24282e;
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 34px;
-background:#07090c;
-position:sticky;
-top:0;
-z-index:10;
-}
-
-.brand{
-display:flex;
-align-items:center;
-gap:12px;
-font-size:22px;
-font-weight:700;
-}
-
-.logo{
-width:34px;
-height:34px;
-border-radius:9px;
-background:#00c805;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:18px;
-}
-
-.header-right{
-display:flex;
-align-items:center;
-gap:18px;
-}
-
-.market-status{
-font-size:13px;
-color:#9a9da3;
-}
-
-.status-dot{
-display:inline-block;
-width:8px;
-height:8px;
-border-radius:50%;
-background:#00c805;
-margin-right:6px;
-}
-
-.refresh-top{
-background:#171a1f;
-border:1px solid #292d33;
-color:white;
-border-radius:9px;
-padding:8px 13px;
-cursor:pointer;
-}
-
-.refresh-top:hover{
-background:#22262c;
-}
-
-main{
-max-width:1250px;
-margin:auto;
-padding:32px 24px 70px;
-}
-
-.page-title{
-font-size:31px;
-font-weight:700;
-margin-bottom:5px;
-}
-
-.page-subtitle{
-color:#8f939a;
-font-size:14px;
-margin-bottom:30px;
-}
-
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:18px;
-}
-
-.card{
-background:#0b0d10;
-border:1px solid #24282e;
-border-radius:16px;
-padding:22px;
-}
-
-.stock-card{
-cursor:pointer;
-transition:.15s;
-}
-
-.stock-card:hover{
-border-color:#3a3f46;
-transform:translateY(-1px);
-}
-
-.stock-head{
-display:flex;
-justify-content:space-between;
-align-items:flex-start;
-}
-
-.ticker{
-font-size:25px;
-font-weight:750;
-}
-
-.company{
-font-size:13px;
-color:#8f939a;
-margin-top:3px;
-}
-
-.watch{
-color:#8f939a;
-font-size:19px;
-}
-
-.price{
-font-size:37px;
-font-weight:700;
-margin-top:25px;
-letter-spacing:-1px;
-}
-
-.change{
-font-size:15px;
-font-weight:600;
-margin-top:5px;
-}
-
-.up{color:#00c805}
-.down{color:#ff4d4d}
-
-.chart-box{
-height:260px;
-margin-top:20px;
-background:#080a0d;
-border-radius:12px;
-overflow:hidden;
-position:relative;
-}
-
-canvas{
-width:100%;
-height:100%;
-display:block;
-}
-
-.range-buttons{
-display:flex;
-gap:6px;
-margin-top:16px;
-flex-wrap:wrap;
-}
-
-.range-buttons button{
-background:transparent;
-border:0;
-color:#8f939a;
-padding:6px 10px;
-border-radius:7px;
-cursor:pointer;
-font-size:13px;
-}
-
-.range-buttons button.active{
-background:#24282e;
-color:white;
-}
-
-.details{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:8px;
-margin-top:17px;
-}
-
-.detail{
-background:#111419;
-padding:11px;
-border-radius:9px;
-}
-
-.detail-label{
-font-size:11px;
-color:#7d8188;
-margin-bottom:4px;
-}
-
-.detail-value{
-font-size:14px;
-font-weight:600;
-}
-
-.section{
-margin-top:24px;
-}
-
-.section-title{
-font-size:19px;
-font-weight:700;
-margin-bottom:13px;
-}
-
-.section-subtitle{
-color:#777c84;
-font-size:13px;
-margin-top:-8px;
-margin-bottom:14px;
-}
-
-.portfolio{
-background:#0b0d10;
-border:1px solid #24282e;
-border-radius:16px;
-padding:25px;
-}
-
-.portfolio-top{
-display:flex;
-justify-content:space-between;
-align-items:flex-start;
-}
-
-.portfolio-label{
-color:#8f939a;
-font-size:13px;
-}
-
-.portfolio-value{
-font-size:39px;
-font-weight:700;
-margin-top:4px;
-}
-
-.portfolio-gain{
-margin-top:5px;
-font-size:14px;
-font-weight:600;
-}
-
-.portfolio-grid{
-display:grid;
-grid-template-columns:1.3fr 1fr 1fr;
-gap:12px;
-margin-top:25px;
-}
-
-.portfolio-stat{
-background:#111419;
-border-radius:11px;
-padding:15px;
-}
-
-.stat-label{
-color:#777c84;
-font-size:12px;
-}
-
-.stat-value{
-font-size:17px;
-font-weight:650;
-margin-top:5px;
-}
-
-.holding{
-margin-top:16px;
-padding-top:16px;
-border-top:1px solid #24282e;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.holding-left{
-display:flex;
-align-items:center;
-gap:12px;
-}
-
-.company-icon{
-width:38px;
-height:38px;
-border-radius:50%;
-background:#22262c;
-display:flex;
-align-items:center;
-justify-content:center;
-font-weight:700;
-}
-
-.holding-name{
-font-weight:650;
-}
-
-.holding-shares{
-font-size:12px;
-color:#777c84;
-margin-top:3px;
-}
-
-.holding-price{
-text-align:right;
-font-weight:650;
-}
-
-.activity-item{
-padding:15px 0;
-border-bottom:1px solid #24282e;
-display:flex;
-justify-content:space-between;
-}
-
-.activity-name{
-font-weight:600;
-}
-
-.activity-date{
-font-size:12px;
-color:#777c84;
-margin-top:4px;
-}
-
-.activity-amount{
-font-weight:600;
-}
-
-.overview-grid{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:18px;
-}
-
-.overview-card{
-background:#0b0d10;
-border:1px solid #24282e;
-border-radius:16px;
-padding:21px;
-}
-
-.overview-label{
-color:#8f939a;
-font-size:13px;
-}
-
-.overview-value{
-font-size:26px;
-font-weight:700;
-margin-top:7px;
-}
-
-.news{
-font-size:13px;
-color:#a2a5ab;
-line-height:1.5;
-}
-
-.error{
-display:none;
-margin-top:14px;
-background:#211012;
-border:1px solid #542326;
-color:#ff7777;
-padding:12px;
-border-radius:9px;
-font-size:12px;
-}
-
-.loading{
-color:#777c84;
-}
-
-footer{
-text-align:center;
-padding:30px;
-color:#555a61;
-font-size:12px;
-}
-
-@media(max-width:850px){
-
-.grid,
-.overview-grid,
-.portfolio-grid{
-grid-template-columns:1fr;
-}
-
-header{
-padding:0 16px;
-}
-
-main{
-padding:22px 14px 50px;
-}
-
-}
-
-@media(max-width:550px){
-
-.price{
-font-size:31px;
-}
-
-.portfolio-value{
-font-size:32px;
-}
-
-.details{
-grid-template-columns:1fr;
-}
-
-}
-</style>
-</head>
-
-<body>
-
-<header>
-
-<div class="brand">
-<div class="logo">↗</div>
-<span>Market Desk</span>
-</div>
-
-<div class="header-right">
-
-<div class="market-status" id="marketStatus">
-<span class="status-dot"></span>Checking market
-</div>
-
-<button
-class="refresh-top"
-onclick="loadAllStocks()">
-↻ Refresh
-</button>
-
-</div>
-
-</header>
-
-<main>
-
-<div class="page-title">Investing</div>
-<div class="page-subtitle">Your market dashboard</div>
-
-
-<!-- STOCKS -->
-
-<div class="grid">
-
-<!-- AMAZON -->
-
-<div class="card stock-card">
-
-<div class="stock-head">
-
-<div>
-<div class="ticker">AMZN</div>
-<div class="company">Amazon.com, Inc.</div>
-</div>
-
-<div class="watch">☆</div>
-
-</div>
-
-<div class="price loading" id="AMZN-price">
-Loading...
-</div>
-
-<div class="change loading" id="AMZN-change">
-Updating...
-</div>
-
-<div class="chart-box">
-<canvas id="AMZN-chart"></canvas>
-</div>
-
-<div class="range-buttons">
-
-<button class="active"
-onclick="setRange('AMZN','1d',this)">
-1D
-</button>
-
-<button onclick="setRange('AMZN','1w',this)">
-1W
-</button>
-
-<button onclick="setRange('AMZN','1m',this)">
-1M
-</button>
-
-<button onclick="setRange('AMZN','3m',this)">
-3M
-</button>
-
-<button onclick="setRange('AMZN','1y',this)">
-1Y
-</button>
-
-<button onclick="setRange('AMZN','all',this)">
-ALL
-</button>
-
-</div>
-
-<div class="details">
-
-<div class="detail">
-<div class="detail-label">Previous Close</div>
-<div class="detail-value" id="AMZN-prev">—</div>
-</div>
-
-<div class="detail">
-<div class="detail-label">Day High</div>
-<div class="detail-value" id="AMZN-high">—</div>
-</div>
-
-<div class="detail">
-<div class="detail-label">Day Low</div>
-<div class="detail-value" id="AMZN-low">—</div>
-</div>
-
-</div>
-
-<div class="error" id="AMZN-error"></div>
-
-</div>
-
-
-<!-- MICROSOFT -->
-
-<div class="card stock-card">
-
-<div class="stock-head">
-
-<div>
-<div class="ticker">MSFT</div>
-<div class="company">Microsoft Corporation</div>
-</div>
-
-<div class="watch">☆</div>
-
-</div>
-
-<div class="price loading" id="MSFT-price">
-Loading...
-</div>
-
-<div class="change loading" id="MSFT-change">
-Updating...
-</div>
-
-<div class="chart-box">
-<canvas id="MSFT-chart"></canvas>
-</div>
-
-<div class="range-buttons">
-
-<button class="active"
-onclick="setRange('MSFT','1d',this)">
-1D
-</button>
-
-<button onclick="setRange('MSFT','1w',this)">
-1W
-</button>
-
-<button onclick="setRange('MSFT','1m',this)">
-1M
-</button>
-
-<button onclick="setRange('MSFT','3m',this)">
-3M
-</button>
-
-<button onclick="setRange('MSFT','1y',this)">
-1Y
-</button>
-
-<button onclick="setRange('MSFT','all',this)">
-ALL
-</button>
-
-</div>
-
-<div class="details">
-
-<div class="detail">
-<div class="detail-label">Previous Close</div>
-<div class="detail-value" id="MSFT-prev">—</div>
-</div>
-
-<div class="detail">
-<div class="detail-label">Day High</div>
-<div class="detail-value" id="MSFT-high">—</div>
-</div>
-
-<div class="detail">
-<div class="detail-label">Day Low</div>
-<div class="detail-value" id="MSFT-low">—</div>
-</div>
-
-</div>
-
-<div class="error" id="MSFT-error"></div>
-
-</div>
-
-</div>
-
-
-<!-- PORTFOLIO -->
-
-<div class="section">
-
-<div class="section-title">
-Portfolio
-</div>
-
-<div class="portfolio">
-
-<div class="portfolio-top">
-
-<div>
-
-<div class="portfolio-label">
-Portfolio value
-</div>
-
-<div class="portfolio-value" id="portfolio-value">
-$163.39
-</div>
-
-<div class="portfolio-gain up" id="portfolio-gain">
-+$37.39 (+29.67%)
-</div>
-
-</div>
-
-<div class="portfolio-label">
-Today
-</div>
-
-</div>
-
-<div class="portfolio-grid">
-
-<div class="portfolio-stat">
-
-<div class="stat-label">
-Invested
-</div>
-
-<div class="stat-value">
-$126.00
-</div>
-
-</div>
-
-<div class="portfolio-stat">
-
-<div class="stat-label">
-Total return
-</div>
-
-<div class="stat-value up" id="total-return">
-+$37.39
-</div>
-
-</div>
-
-<div class="portfolio-stat">
-
-<div class="stat-label">
-Buying power
-</div>
-
-<div class="stat-value">
-$0.00
-</div>
-
-</div>
-
-</div>
-
-<div class="holding">
-
-<div class="holding-left">
-
-<div class="company-icon">
-A
-</div>
-
-<div>
-
-<div class="holding-name">
-Amazon
-</div>
-
-<div class="holding-shares">
-AMZN · 0.621366 shares
-</div>
-
-</div>
-
-</div>
-
-<div class="holding-price">
-
-<div id="holding-value">
-$—
-</div>
-
-<div class="up" id="holding-gain">
-+$—
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- MARKET OVERVIEW -->
-
-<div class="section">
-
-<div class="section-title">
-Market Overview
-</div>
-
-<div class="section-subtitle">
-Today's market snapshot
-</div>
-
-<div class="overview-grid">
-
-<div class="overview-card">
-
-<div class="overview-label">
-Amazon
-</div>
-
-<div class="overview-value" id="overview-amzn">
-$—
-</div>
-
-<div id="overview-amzn-change">
-—
-</div>
-
-</div>
-
-<div class="overview-card">
-
-<div class="overview-label">
-Microsoft
-</div>
-
-<div class="overview-value" id="overview-msft">
-$—
-</div>
-
-<div id="overview-msft-change">
-—
-</div>
-
-</div>
-
-<div class="overview-card">
-
-<div class="overview-label">
-Dashboard status
-</div>
-
-<div class="overview-value" id="overview-status">
-Loading
-</div>
-
-<div class="news" id="last-update">
-Waiting for data...
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- WATCHLIST -->
-
-<div class="section">
-
-<div class="section-title">
-Watchlist
-</div>
-
-<div class="card">
-
-<div class="activity-item">
-
-<div>
-
-<div class="activity-name">
-Amazon
-</div>
-
-<div class="activity-date">
-AMZN
-</div>
-
-</div>
-
-<div class="activity-amount" id="watch-amzn">
-$—
-</div>
-
-</div>
-
-<div class="activity-item">
-
-<div>
-
-<div class="activity-name">
-Microsoft
-</div>
-
-<div class="activity-date">
-MSFT
-</div>
-
-</div>
-
-<div class="activity-amount" id="watch-msft">
-$—
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- RECENT ACTIVITY -->
-
-<div class="section">
-
-<div class="section-title">
-Recent Activity
-</div>
-
-<div class="card">
-
-<div class="activity-item">
-
-<div>
-
-<div class="activity-name">
-Amazon position
-</div>
-
-<div class="activity-date">
-0.621366 shares held
-</div>
-
-</div>
-
-<div class="activity-amount">
-$126.00 invested
-</div>
-
-</div>
-
-<div class="activity-item">
-
-<div>
-
-<div class="activity-name">
-Portfolio growth
-</div>
-
-<div class="activity-date">
-Current estimate
-</div>
-
-</div>
-
-<div class="activity-amount up">
-+$37.39
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</main>
-
-<footer>
-Market Desk · Practice portfolio dashboard<br>
-Market prices may be delayed.
-</footer>
-
-
+```html
 <script>
+const DEFAULTS=['AMZN','MSFT'];
+const WATCH_DEFAULTS=['AAPL','NVDA','GOOGL','META','TSLA','AMD','NFLX','AVGO'];
+const LIVE_INTERVAL=60000;
+const MARKET_TZ='America/New_York';
 
-/* =====================================================
-   🔑 PUT YOUR API KEY RIGHT HERE
-   ===================================================== */
+/* PUT YOUR TWELVE DATA API KEY BETWEEN THE QUOTES */
+const TWELVE_DATA_KEY='ddac1dd8c55d4ead9d555e2d9fe95506';
 
-const ALPHA_VANTAGE_KEY = "2Y4YSFK4F9PU3T9E";
-
-
-/* =====================================================
-   PORTFOLIO SETTINGS
-   ===================================================== */
-
-const PORTFOLIO_VALUE = 163.39;
-const AMZN_SHARES = 0.621366;
-const INVESTED = 126.00;
-
-
-/* =====================================================
-   STOCKS
-   ===================================================== */
-
-const stocks = {
-
-AMZN:{
-chart:"AMZN-chart",
-range:"1d",
-data:null
-},
-
-MSFT:{
-chart:"MSFT-chart",
-range:"1d",
-data:null
-}
-
+const names={
+ AAPL:'Apple',AMZN:'Amazon',MSFT:'Microsoft',NVDA:'NVIDIA',
+ GOOGL:'Alphabet',META:'Meta Platforms',TSLA:'Tesla',
+ AMD:'AMD',NFLX:'Netflix',AVGO:'Broadcom'
 };
 
+const INDEXES={spx:'SPX',ndx:'IXIC',dji:'DJI'};
 
-/* =====================================================
-   FORMAT MONEY
-   ===================================================== */
+let symbols=JSON.parse(localStorage.getItem('marketdesk_symbols')||'null')||DEFAULTS.slice();
+if(!symbols.includes('AMZN'))symbols.unshift('AMZN');
+symbols=[...new Set(symbols)];
 
-function money(value){
+let ranges={AMZN:'1d',MSFT:'1d'};
+let data={};
+let refreshTimer;
+let busy=false;
+let lastSuccessfulUpdate=null;
 
-if(
-value === null ||
-value === undefined ||
-!isFinite(value)
-){
-return "—";
+const fmt=n=>Number.isFinite(n)?'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+const pct=n=>Number.isFinite(n)?(n>=0?'+':'')+n.toFixed(2)+'%':'—';
+
+function compact(n){
+ if(!Number.isFinite(n))return '—';
+ if(n>=1e12)return '$'+(n/1e12).toFixed(2)+'T';
+ if(n>=1e9)return '$'+(n/1e9).toFixed(2)+'B';
+ if(n>=1e6)return '$'+(n/1e6).toFixed(2)+'M';
+ return fmt(n);
 }
 
-return "$" +
-Number(value).toLocaleString(
-"en-US",
-{
-minimumFractionDigits:2,
-maximumFractionDigits:2
-}
-);
-
+function intervalForRange(r){
+ if(r==='1d')return '5min';
+ if(r==='5d')return '15min';
+ if(r==='1mo')return '1h';
+ return '1day';
 }
 
-
-/* =====================================================
-   API REQUEST
-   ===================================================== */
-
-async function fetchJSON(url){
-
-const controller =
-new AbortController();
-
-const timeout =
-setTimeout(
-()=>controller.abort(),
-15000
-);
-
-try{
-
-const response =
-await fetch(
-url,
-{
-cache:"no-store"
-}
-);
-
-if(!response.ok){
-
-throw new Error(
-"HTTP " + response.status
-);
-
+function outputSizeForRange(r){
+ if(r==='1d')return 100;
+ if(r==='5d')return 300;
+ if(r==='1mo')return 500;
+ if(r==='3mo')return 500;
+ return 260;
 }
 
-return await response.json();
+async function api(path,params={}){
+ const url=new URL('https://api.twelvedata.com/'+path);
+ Object.entries(params).forEach(([k,v])=>{
+  if(v!==undefined&&v!==null&&v!=='')url.searchParams.set(k,v);
+ });
+ url.searchParams.set('apikey',TWELVE_DATA_KEY);
 
+ const r=await fetch(url.toString(),{cache:'no-store'});
+ if(!r.ok)throw Error('Market API request failed ('+r.status+')');
+
+ const j=await r.json();
+ if(j.status==='error'||j.code)throw Error(j.message||'Market API error');
+ return j;
 }
 
-finally{
+async function fetchQuote(sym,range='1d'){
+ if(!TWELVE_DATA_KEY||TWELVE_DATA_KEY==='PASTE_YOUR_KEY_HERE')
+  throw Error('Add your Twelve Data API key first.');
 
-clearTimeout(timeout);
+ const series=await api('time_series',{
+  symbol:sym,
+  interval:intervalForRange(range),
+  outputsize:outputSizeForRange(range),
+  order:'ASC',
+  timezone:'America/New_York'
+ });
 
+ if(!series.values?.length)throw Error('No market data returned for '+sym);
+
+ const points=series.values.map(v=>({
+  t:Date.parse(v.datetime),
+  p:Number(v.close),
+  o:Number(v.open),
+  h:Number(v.high),
+  l:Number(v.low),
+  v:Number(v.volume||0)
+ })).filter(v=>Number.isFinite(v.p));
+
+ if(points.length<1)throw Error('No usable prices returned for '+sym);
+
+ const latest=points.at(-1);
+
+ let q={};
+ try{q=await api('quote',{symbol:sym});}catch(e){}
+
+ const price=Number(q.close)||latest.p;
+ const prev=Number(q.previous_close)||(points.length>1?points.at(-2).p:price);
+ const change=Number(q.change)||(price-prev);
+ const percent=Number(q.percent_change)||(prev?change/prev*100:0);
+
+ return {
+  sym,points,price,prev,change,percent,
+  open:Number(q.open)||latest.o,
+  high:Number(q.high)||latest.h,
+  low:Number(q.low)||latest.l,
+  volume:Number(q.volume)||latest.v,
+  fiftyTwoHigh:Number(q.fifty_two_week?.high),
+  fiftyTwoLow:Number(q.fifty_two_week?.low),
+  marketCap:NaN
+ };
 }
 
+function rangeButtons(sym){
+ return ['1d','5d','1mo','3mo','1y'].map(r=>`
+  <button class="${(ranges[sym]||'1d')===r?'active':''}"
+   onclick="setRange('${sym}','${r}')">
+   ${r==='1mo'?'1M':r==='3mo'?'3M':r==='1y'?'1Y':r.toUpperCase()}
+  </button>
+ `).join('');
 }
 
+function cardHTML(d){
+ return `<div class="card">
+  <div class="stock-head">
+   <div>
+    <div class="ticker">${d.sym}</div>
+    <div class="company">${names[d.sym]||d.sym}</div>
+   </div>
+   <div>
+    <button class="star ${symbols.includes(d.sym)?'active':''}"
+     onclick="toggleWatch('${d.sym}')">☆</button>
+    <button class="star" title="Fullscreen"
+     onclick="fullscreenChart('${d.sym}')">⛶</button>
+   </div>
+  </div>
 
-/* =====================================================
-   GET INTRADAY DATA
-   ===================================================== */
+  <div class="quote">
+   <div class="price">${fmt(d.price)}</div>
+   <div class="change ${d.change>=0?'up':'down'}">
+    ${pct(d.percent)} · ${d.change>=0?'+':''}${fmt(d.change)}
+   </div>
+  </div>
 
-async function getIntraday(ticker){
+  <div class="chart-wrap" id="wrap-${d.sym}">
+   <canvas id="canvas-${d.sym}"></canvas>
+   <div class="crosshair" id="cross-${d.sym}"></div>
+   <div class="tooltip" id="tip-${d.sym}"></div>
+  </div>
 
-if(!ALPHA_VANTAGE_KEY){
+  <div class="ranges">${rangeButtons(d.sym)}</div>
 
-throw new Error(
-"API key missing. Put your key at the top of the JavaScript."
-);
+  <div class="details">
+   <div class="detail"><div class="detail-label">Open</div><div class="detail-value">${fmt(d.open)}</div></div>
+   <div class="detail"><div class="detail-label">Day high</div><div class="detail-value">${fmt(d.high)}</div></div>
+   <div class="detail"><div class="detail-label">Day low</div><div class="detail-value">${fmt(d.low)}</div></div>
+   <div class="detail"><div class="detail-label">Volume</div><div class="detail-value">${Number.isFinite(d.volume)?d.volume.toLocaleString():'—'}</div></div>
+   <div class="detail"><div class="detail-label">52W high</div><div class="detail-value">${fmt(d.fiftyTwoHigh)}</div></div>
+   <div class="detail"><div class="detail-label">52W low</div><div class="detail-value">${fmt(d.fiftyTwoLow)}</div></div>
+   <div class="detail"><div class="detail-label">Market cap</div><div class="detail-value">${compact(d.marketCap)}</div></div>
+   <div class="detail"><div class="detail-label">Previous close</div><div class="detail-value">${fmt(d.prev)}</div></div>
+  </div>
 
+  <div class="error" id="err-${d.sym}"></div>
+ </div>`;
 }
 
-const url =
-"https://www.alphavantage.co/query" +
-
-"?function=TIME_SERIES_INTRADAY" +
-
-"&symbol=" +
-encodeURIComponent(ticker) +
-
-"&interval=1min" +
-
-"&outputsize=compact" +
-
-"&entitlement=delayed" +
-
-"&apikey=" +
-encodeURIComponent(
-ALPHA_VANTAGE_KEY
-);
-
-
-const data =
-await fetchJSON(url);
-
-
-if(data["Error Message"]){
-
-throw new Error(
-data["Error Message"]
-);
-
+function showVol(){
+ return document.getElementById('showVolume')?.checked;
 }
 
-if(data["Note"]){
+function draw(d){
+ const c=document.getElementById('canvas-'+d.sym);
+ if(!c)return;
 
-throw new Error(
-"API limit reached. Try Refresh again later."
-);
+ const box=c.getBoundingClientRect();
+ const ratio=devicePixelRatio||1;
+ const w=box.width,h=box.height;
 
+ c.width=w*ratio;
+ c.height=h*ratio;
+
+ const x=c.getContext('2d');
+ x.setTransform(ratio,0,0,ratio,0,0);
+ x.clearRect(0,0,w,h);
+
+ const pts=d.points;
+
+ if(pts.length<2){
+  x.fillStyle='#777c84';
+  x.font='13px Arial';
+  x.fillText('Chart data unavailable',18,h/2);
+  return;
+ }
+
+ const pad={l:10,r:10,t:18,b:showVol()?48:18};
+ const vals=pts.map(p=>p.p);
+ const min=Math.min(...vals);
+ const max=Math.max(...vals);
+ const vr=max-min||1;
+
+ for(let i=1;i<5;i++){
+  const y=pad.t+(h-pad.t-pad.b)*i/5;
+  x.strokeStyle='#171a1f';
+  x.beginPath();
+  x.moveTo(0,y);
+  x.lineTo(w,y);
+  x.stroke();
+ }
+
+ if(showVol()){
+  const vols=pts.map(p=>p.v||0);
+  const vm=Math.max(...vols)||1;
+  const bw=Math.max(1,(w-pad.l-pad.r)/pts.length);
+
+  x.fillStyle='#1e252b';
+
+  pts.forEach((p,i)=>{
+   const bh=(p.v||0)/vm*(h-pad.b+10-18);
+   x.fillRect(pad.l+i*bw,h-4-bh,Math.max(1,bw*.65),bh);
+  });
+ }
+
+ x.beginPath();
+
+ pts.forEach((p,i)=>{
+  const xx=pad.l+(w-pad.l-pad.r)*i/(pts.length-1);
+  const yy=pad.t+(h-pad.t-pad.b)*(1-(p.p-min)/vr);
+
+  if(i)x.lineTo(xx,yy);
+  else x.moveTo(xx,yy);
+ });
+
+ x.strokeStyle=d.change>=0?'#00c805':'#ff4d4d';
+ x.lineWidth=2.2;
+ x.lineJoin='round';
+ x.stroke();
 }
 
+function attachHover(d){
+ const wrap=document.getElementById('wrap-'+d.sym);
+ const tip=document.getElementById('tip-'+d.sym);
+ const cross=document.getElementById('cross-'+d.sym);
 
-const seriesKey =
-Object.keys(data).find(
-key =>
-key.toLowerCase()
-.includes("time series")
-);
+ if(!wrap)return;
 
+ wrap.onmousemove=e=>{
+  if(d.points.length<2)return;
 
-if(!seriesKey){
+  const r=wrap.getBoundingClientRect();
 
-throw new Error(
-"No intraday chart data returned."
-);
+  const xpos=Math.max(
+   0,
+   Math.min(r.width,e.clientX-r.left)
+  );
 
+  const i=Math.round(
+   xpos/r.width*(d.points.length-1)
+  );
+
+  const p=d.points[i];
+  const first=d.points[0].p;
+  const ch=first?(p.p-first)/first*100:0;
+
+  tip.style.display='block';
+  tip.style.left=Math.min(xpos+12,r.width-170)+'px';
+  tip.style.top=Math.max(8,e.clientY-r.top-58)+'px';
+
+  tip.innerHTML=
+   '<b>'+fmt(p.p)+'</b><br>'+
+   pct(ch)+' · '+
+   (p.p-first>=0?'+':'')+
+   fmt(p.p-first)+
+   ' from period start<br>'+
+   new Date(p.t).toLocaleString()+
+   '<br>O '+fmt(p.o)+
+   ' · H '+fmt(p.h)+
+   ' · L '+fmt(p.l);
+
+  cross.style.display='block';
+  cross.style.left=xpos+'px';
+ };
+
+ wrap.onmouseleave=()=>{
+  tip.style.display='none';
+  cross.style.display='none';
+ };
 }
 
-
-const series =
-data[seriesKey];
-
-
-const points =
-Object.entries(series)
-
-.map(
-([timestamp,value])=>({
-
-timestamp,
-
-open:
-Number(value["1. open"]),
-
-high:
-Number(value["2. high"]),
-
-low:
-Number(value["3. low"]),
-
-close:
-Number(value["4. close"]),
-
-volume:
-Number(value["5. volume"])
-
-})
-)
-
-.filter(
-p=>isFinite(p.close)
-)
-
-.sort(
-(a,b)=>
-new Date(a.timestamp) -
-new Date(b.timestamp)
-);
-
-
-if(!points.length){
-
-throw new Error(
-"Chart data was empty."
-);
-
+async function load(sym){
+ try{
+  data[sym]=await fetchQuote(sym,ranges[sym]||'1d');
+  render();
+  return data[sym];
+ }catch(e){
+  const err=document.getElementById('err-'+sym);
+  if(err){
+   err.style.display='block';
+   err.textContent=e.message;
+  }
+  throw e;
+ }
 }
 
-return points;
+async function refreshAll(){
+ if(busy)return;
+ busy=true;
 
+ document.getElementById('marketStatus').innerHTML=
+  '<span class="status-dot"></span>Updating';
+
+ const all=[
+  'AMZN','MSFT',
+  ...WATCH_DEFAULTS,
+  ...Object.values(INDEXES)
+ ];
+
+ for(const s of [...new Set(all)]){
+  try{
+   data[s]=await fetchQuote(s,ranges[s]||'1d');
+  }catch(e){
+   console.warn('Could not load '+s,e.message);
+  }
+
+  await new Promise(r=>setTimeout(r,150));
+ }
+
+ lastSuccessfulUpdate=new Date();
+
+ render();
+
+ const ok=Object.keys(data).length;
+
+ document.getElementById('update-time').textContent=
+  lastSuccessfulUpdate.toLocaleTimeString();
+
+ document.getElementById('connection-note').textContent=
+  ok?'Live quote polling · '+ok+' symbols':'Waiting for data';
+
+ document.getElementById('feedNotice').innerHTML=
+  '<b style="color:#fff">Live feed:</b> '+
+  (ok?'Connected to Twelve Data.':'Add your Twelve Data API key.');
+
+ document.getElementById('marketStatus').innerHTML=
+  ok
+   ?'<span class="status-dot"></span>Market data loaded'
+   :'<span class="status-dot" style="background:#ff4d4d"></span>Live feed unavailable';
+
+ busy=false;
 }
 
-
-/* =====================================================
-   GET DAILY DATA
-   ===================================================== */
-
-async function getDaily(ticker){
-
-const url =
-"https://www.alphavantage.co/query" +
-
-"?function=TIME_SERIES_DAILY" +
-
-"&symbol=" +
-encodeURIComponent(ticker) +
-
-"&outputsize=full" +
-
-"&apikey=" +
-encodeURIComponent(
-ALPHA_VANTAGE_KEY
-);
-
-
-const data =
-await fetchJSON(url);
-
-
-if(data["Error Message"]){
-
-throw new Error(
-data["Error Message"]
-);
-
+function pinAmazon(){
+ symbols=['AMZN',...symbols.filter(s=>s!=='AMZN')];
+ localStorage.setItem('marketdesk_symbols',JSON.stringify(symbols));
+ render();
 }
 
-if(data["Note"]){
+function fullscreenChart(sym){
+ const w=document.getElementById('wrap-'+sym);
+ if(!w)return;
 
-throw new Error(
-"API limit reached. Try Refresh again later."
-);
+ w.classList.toggle('fullscreen');
 
+ document.documentElement.style.overflow=
+  w.classList.contains('fullscreen')?'hidden':'';
+
+ setTimeout(()=>draw(data[sym]),50);
 }
 
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'){
+  document.querySelectorAll('.chart-wrap.fullscreen')
+   .forEach(w=>w.classList.remove('fullscreen'));
 
-const seriesKey =
-Object.keys(data).find(
-key =>
-key.toLowerCase()
-.includes("time series")
-);
+  document.documentElement.style.overflow='';
+  redrawAll();
+ }
+});
 
+function updatePulse(){
+ const now=new Date();
 
-if(!seriesKey){
+ const parts=new Intl.DateTimeFormat(
+  'en-US',
+  {
+   timeZone:MARKET_TZ,
+   hour:'2-digit',
+   minute:'2-digit',
+   second:'2-digit',
+   hour12:false
+  }
+ ).formatToParts(now);
 
-throw new Error(
-"No daily data returned."
-);
+ const h=+parts.find(x=>x.type==='hour').value;
+ const m=+parts.find(x=>x.type==='minute').value;
+ const mins=h*60+m;
 
+ const weekday=new Intl.DateTimeFormat(
+  'en-US',
+  {
+   timeZone:MARKET_TZ,
+   weekday:'short'
+  }
+ ).format(now);
+
+ const open=
+  weekday!=='Sat' &&
+  weekday!=='Sun' &&
+  mins>=570 &&
+  mins<960;
+
+ document.getElementById('market-session').textContent=
+  open
+   ?'US market open'
+   :'US market closed / pre-market / after-hours';
+
+ document.getElementById('market-countdown').textContent=
+  open
+   ?'Closes in '+Math.max(0,960-mins)+'m'
+   :'Updates every 60s';
+
+ const a=data.AMZN;
+
+ if(a){
+  const el=document.getElementById('amzn-session-move');
+
+  el.textContent=pct(a.percent);
+  el.className='row-right '+(a.change>=0?'up':'down');
+
+  document.getElementById('amzn-day-range').textContent=
+   fmt(a.low)+' — '+fmt(a.high);
+
+  const span=a.high-a.low;
+
+  document.getElementById('amzn-range-position').textContent=
+   span>0
+    ?Math.round((a.price-a.low)/span*100)+'% of range'
+    :'—';
+ }
 }
 
+function render(){
+ document.getElementById('stockGrid').innerHTML=
+  symbols.map(s=>
+   data[s]
+    ?cardHTML(data[s])
+    :`<div class="card">
+       <b>${s}</b>
+       <div class="error" style="display:block">
+        Waiting for market data.
+       </div>
+      </div>`
+  ).join('');
 
-const series =
-data[seriesKey];
+ symbols.forEach(s=>{
+  if(data[s]){
+   draw(data[s]);
+   attachHover(data[s]);
+  }
+ });
 
-
-const points =
-Object.entries(series)
-
-.map(
-([timestamp,value])=>({
-
-timestamp,
-
-open:
-Number(value["1. open"]),
-
-high:
-Number(value["2. high"]),
-
-low:
-Number(value["3. low"]),
-
-close:
-Number(value["4. close"])
-
-})
-)
-
-.filter(
-p=>isFinite(p.close)
-)
-
-.sort(
-(a,b)=>
-new Date(a.timestamp) -
-new Date(b.timestamp)
-);
-
-
-return points;
-
+ renderWatch();
+ renderIndexes();
+ renderMovers();
 }
 
+function renderWatch(){
+ const list=[...WATCH_DEFAULTS,...symbols]
+  .filter((s,i,a)=>a.indexOf(s)===i);
 
-/* =====================================================
-   GET STOCK
-   ===================================================== */
+ document.getElementById('watchgrid').innerHTML=
+  list.map(s=>{
+   const d=data[s];
 
-async function getStock(ticker){
+   return `<div class="watch"
+     onclick="addFromWatch('${s}')">
 
-const intraday =
-await getIntraday(ticker);
+     <div class="watch-top">
+      <div>
+       <div class="watch-symbol">${s}</div>
+       <div class="watch-name">${names[s]||s}</div>
+      </div>
 
-const daily =
-await getDaily(ticker);
+      <button
+       class="star ${symbols.includes(s)?'active':''}"
+       onclick="event.stopPropagation();toggleWatch('${s}')">
+       ☆
+      </button>
+     </div>
 
+     <div class="watch-price">
+      ${d?fmt(d.price):'—'}
+     </div>
 
-const latest =
-intraday[
-intraday.length-1
-];
+     <div class="watch-change ${d&&d.change>=0?'up':'down'}">
+      ${d?pct(d.percent):'Loading…'}
+     </div>
 
-
-const previous =
-daily.length >= 2
-? daily[daily.length-2].close
-: latest.close;
-
-
-const change =
-latest.close - previous;
-
-
-const percent =
-previous !== 0
-? change / previous * 100
-: 0;
-
-
-const high =
-Math.max(
-...intraday.map(
-p=>p.high
-)
-);
-
-
-const low =
-Math.min(
-...intraday.map(
-p=>p.low
-)
-);
-
-
-return{
-
-ticker,
-
-price:latest.close,
-
-previous,
-
-change,
-
-percent,
-
-high,
-
-low,
-
-intraday,
-
-daily
-
-};
-
+    </div>`;
+  }).join('');
 }
 
+function renderIndexes(){
+ [
+  ['spx','SPX'],
+  ['ndx','IXIC'],
+  ['dji','DJI']
+ ].forEach(([id,s])=>{
+  const d=data[s];
+  if(!d)return;
 
-/* =====================================================
-   DRAW CHART
-   ===================================================== */
+  document.getElementById(id+'-value').textContent=
+   Number(d.price).toLocaleString(
+    'en-US',
+    {maximumFractionDigits:2}
+   );
 
-function drawChart(ticker){
+  const el=document.getElementById(id+'-change');
 
-const stock =
-stocks[ticker];
-
-if(!stock.data)
-return;
-
-
-const canvas =
-document.getElementById(
-stock.chart
-);
-
-const box =
-canvas.getBoundingClientRect();
-
-const ratio =
-window.devicePixelRatio || 1;
-
-canvas.width =
-box.width * ratio;
-
-canvas.height =
-box.height * ratio;
-
-
-const ctx =
-canvas.getContext("2d");
-
-ctx.setTransform(
-ratio,
-0,
-0,
-ratio,
-0,
-0
-);
-
-
-const width =
-box.width;
-
-const height =
-box.height;
-
-
-ctx.clearRect(
-0,
-0,
-width,
-height
-);
-
-
-let points;
-
-
-if(stock.range === "1d"){
-
-points =
-stock.data.intraday;
-
+  el.textContent=pct(d.percent);
+  el.className='mini-change '+(d.change>=0?'up':'down');
+ });
 }
 
-else{
+function renderMovers(){
+ const list=WATCH_DEFAULTS
+  .map(s=>data[s])
+  .filter(Boolean)
+  .sort((a,b)=>b.percent-a.percent)
+  .slice(0,6);
 
-let days;
+ document.getElementById('movers').innerHTML=
+  list.map(d=>`
+   <div class="row">
 
-if(stock.range==="1w")
-days=7;
+    <div class="row-left">
+     <div class="badge">${d.sym.slice(0,2)}</div>
 
-else if(stock.range==="1m")
-days=30;
+     <div>
+      <div class="row-name">${d.sym}</div>
+      <div class="row-sub">${names[d.sym]||d.sym}</div>
+     </div>
+    </div>
 
-else if(stock.range==="3m")
-days=90;
+    <div class="row-right">
+     <div>${fmt(d.price)}</div>
+     <div class="${d.change>=0?'up':'down'}">
+      ${pct(d.percent)}
+     </div>
+    </div>
 
-else if(stock.range==="1y")
-days=252;
-
-else
-days=stock.data.daily.length;
-
-
-points =
-stock.data.daily.slice(-days);
-
+   </div>
+  `).join('')
+  ||'<div class="muted">No data yet.</div>';
 }
 
+function setRange(s,r){
+ ranges[s]=r;
+ load(s).catch(()=>{});
+}
 
-const prices =
-points
-.map(p=>p.close)
-.filter(isFinite);
+function addSymbol(){
+ let s=document.getElementById('symbolInput')
+  .value.trim()
+  .toUpperCase()
+  .replace(/[^A-Z0-9.\-]/g,'');
 
+ if(!s)return;
 
-if(prices.length < 2){
+ if(!symbols.includes(s))symbols.push(s);
 
-ctx.fillStyle =
-"#555a61";
+ localStorage.setItem(
+  'marketdesk_symbols',
+  JSON.stringify(symbols)
+ );
 
-ctx.font =
-"13px Arial";
+ document.getElementById('symbolInput').value='';
 
-ctx.fillText(
-"Chart data unavailable",
-20,
-height/2
+ load(s).catch(()=>{});
+}
+
+function addFromWatch(s){
+ if(!symbols.includes(s)){
+  symbols.push(s);
+
+  localStorage.setItem(
+   'marketdesk_symbols',
+   JSON.stringify(symbols)
+  );
+
+  load(s).catch(()=>{});
+ }
+}
+
+function toggleWatch(s){
+ if(s==='AMZN'){
+  pinAmazon();
+  return;
+ }
+
+ if(symbols.includes(s))
+  symbols=symbols.filter(x=>x!==s);
+ else
+  symbols.push(s);
+
+ symbols=[
+  'AMZN',
+  ...symbols.filter(x=>x!=='AMZN')
+ ];
+
+ localStorage.setItem(
+  'marketdesk_symbols',
+  JSON.stringify(symbols)
+ );
+
+ render();
+}
+
+function resetSymbols(){
+ symbols=DEFAULTS.slice();
+
+ localStorage.setItem(
+  'marketdesk_symbols',
+  JSON.stringify(symbols)
+ );
+
+ refreshAll();
+}
+
+function redrawAll(){
+ symbols.forEach(s=>{
+  if(data[s])draw(data[s]);
+ });
+}
+
+document.getElementById('autoRefresh')
+ .addEventListener('change',e=>{
+  clearInterval(refreshTimer);
+
+  if(e.target.checked)
+   refreshTimer=setInterval(
+    refreshAll,
+    LIVE_INTERVAL
+   );
+ });
+
+window.addEventListener('resize',redrawAll);
+
+refreshAll();
+
+refreshTimer=setInterval(
+ refreshAll,
+ LIVE_INTERVAL
 );
 
-return;
+setInterval(updatePulse,1000);
 
-}
-
-
-const min =
-Math.min(...prices);
-
-const max =
-Math.max(...prices);
-
-const valueRange =
-max-min || 1;
-
-const pad=18;
-
-
-/* Grid */
-
-ctx.strokeStyle =
-"#171a1f";
-
-ctx.lineWidth=1;
-
-
-for(
-let i=1;
-i<5;
-i++
-){
-
-const y =
-pad +
-(height-pad*2) *
-i/5;
-
-ctx.beginPath();
-
-ctx.moveTo(
-0,
-y
-);
-
-ctx.lineTo(
-width,
-y
-);
-
-ctx.stroke();
-
-}
-
-
-/* Line */
-
-ctx.beginPath();
-
-
-prices.forEach(
-(price,i)=>{
-
-const x =
-pad +
-(width-pad*2) *
-i /
-(prices.length-1);
-
-
-const y =
-height-pad -
-(
-(price-min) /
-valueRange
-) *
-(height-pad*2);
-
-
-if(i===0)
-ctx.moveTo(x,y);
-
-else
-ctx.lineTo(x,y);
-
-}
-);
-
-
-ctx.strokeStyle =
-stock.data.change >= 0
-? "#00c805"
-: "#ff4d4d";
-
-ctx.lineWidth=3;
-
-ctx.lineJoin="round";
-
-ctx.lineCap="round";
-
-ctx.stroke();
-
-}
-
-
-/* =====================================================
-   UPDATE STOCK CARD
-   ===================================================== */
-
-function updateStock(stock){
-
-const ticker =
-stock.ticker;
-
-stocks[ticker].data =
-stock;
-
-
-const price =
-document.getElementById(
-`${ticker}-price`
-);
-
-price.textContent =
-money(stock.price);
-
-price.className =
-"price";
-
-
-const change =
-document.getElementById(
-`${ticker}-change`
-);
-
-const sign =
-stock.change >= 0
-? "+"
-: "";
-
-
-change.textContent =
-`${sign}${money(stock.change)} (${sign}${stock.percent.toFixed(2)}%)`;
-
-change.className =
-"change " +
-(
-stock.change >= 0
-? "up"
-: "down"
-);
-
-
-document.getElementById(
-`${ticker}-prev`
-).textContent =
-money(stock.previous);
-
-
-document.getElementById(
-`${ticker}-high`
-).textContent =
-money(stock.high);
-
-
-document.getElementById(
-`${ticker}-low`
-).textContent =
-money(stock.low);
-
-
-document.getElementById(
-`${ticker}-error`
-).style.display =
-"none";
-
-
-if(ticker==="AMZN"){
-
-document.getElementById(
-"overview-amzn"
-).textContent =
-money(stock.price);
-
-
-document.getElementById(
-"overview-amzn-change"
-).textContent =
-`${sign}${stock.percent.toFixed(2)}% today`;
-
-document.getElementById(
-"overview-amzn-change"
-).className =
-stock.change >= 0
-? "up"
-: "down";
-
-
-document.getElementById(
-"watch-amzn"
-).textContent =
-money(stock.price);
-
-}
-
-
-if(ticker==="MSFT"){
-
-document.getElementById(
-"overview-msft"
-).textContent =
-money(stock.price);
-
-
-document.getElementById(
-"overview-msft-change"
-).textContent =
-`${sign}${stock.percent.toFixed(2)}% today`;
-
-document.getElementById(
-"overview-msft-change"
-).className =
-stock.change >= 0
-? "up"
-: "down";
-
-
-document.getElementById(
-"watch-msft"
-).textContent =
-money(stock.price);
-
-}
-
-
-drawChart(ticker);
-
-updatePortfolio();
-
-}
-
-
-/* =====================================================
-   UPDATE PORTFOLIO
-   ===================================================== */
-
-function updatePortfolio(){
-
-const amazon =
-stocks.AMZN.data;
-
-
-document.getElementById(
-"portfolio-value"
-).textContent =
-money(PORTFOLIO_VALUE);
-
-
-const totalReturn =
-PORTFOLIO_VALUE -
-INVESTED;
-
-
-const sign =
-totalReturn >= 0
-? "+"
-: "";
-
-
-const percent =
-INVESTED !== 0
-? totalReturn / INVESTED * 100
-: 0;
-
-
-document.getElementById(
-"total-return"
-).textContent =
-`${sign}${money(totalReturn)}`;
-
-
-document.getElementById(
-"portfolio-gain"
-).textContent =
-`${sign}${money(totalReturn)} (${sign}${percent.toFixed(2)}%)`;
-
-
-if(!amazon)
-return;
-
-
-const holdingValue =
-amazon.price *
-AMZN_SHARES;
-
-
-document.getElementById(
-"holding-value"
-).textContent =
-money(holdingValue);
-
-
-const holdingGain =
-holdingValue -
-INVESTED;
-
-
-const holdingSign =
-holdingGain >= 0
-? "+"
-: "";
-
-
-document.getElementById(
-"holding-gain"
-).textContent =
-`${holdingSign}${money(holdingGain)}`;
-
-}
-
-
-/* =====================================================
-   RANGE BUTTONS
-   ===================================================== */
-
-function setRange(
-ticker,
-range,
-button
-){
-
-stocks[ticker].range =
-range;
-
-
-button.parentElement
-.querySelectorAll("button")
-.forEach(
-b=>b.classList.remove("active")
-);
-
-
-button.classList.add(
-"active"
-);
-
-
-drawChart(ticker);
-
-}
-
-
-/* =====================================================
-   LOAD STOCKS
-   ===================================================== */
-
-async function loadAllStocks(){
-
-const status =
-document.getElementById(
-"marketStatus"
-);
-
-const overviewStatus =
-document.getElementById(
-"overview-status"
-);
-
-
-status.innerHTML =
-'<span class="status-dot"></span>Updating';
-
-overviewStatus.textContent =
-"Updating";
-
-
-const results=[];
-
-
-for(
-const ticker of
-["AMZN","MSFT"]
-){
-
-const price =
-document.getElementById(
-`${ticker}-price`
-);
-
-const change =
-document.getElementById(
-`${ticker}-change`
-);
-
-const errorBox =
-document.getElementById(
-`${ticker}-error`
-);
-
-
-price.textContent =
-"Loading...";
-
-price.className =
-"price loading";
-
-
-change.textContent =
-"Updating...";
-
-change.className =
-"change loading";
-
-
-errorBox.style.display =
-"none";
-
-
-try{
-
-const stock =
-await getStock(ticker);
-
-updateStock(stock);
-
-results.push(stock);
-
-}
-
-catch(error){
-
-console.error(
-ticker,
-error
-);
-
-
-price.textContent =
-"—";
-
-price.className =
-"price";
-
-
-change.textContent =
-"Data unavailable";
-
-change.className =
-"change";
-
-
-errorBox.style.display =
-"block";
-
-errorBox.textContent =
-error.message ||
-"Market data unavailable.";
-
-}
-
-}
-
-
-if(results.length===2){
-
-status.innerHTML =
-'<span class="status-dot"></span>Market data loaded';
-
-overviewStatus.textContent =
-"Online";
-
-}
-
-else if(results.length===1){
-
-status.innerHTML =
-'<span class="status-dot"></span>Partial data';
-
-overviewStatus.textContent =
-"Partial";
-
-}
-
-else{
-
-status.innerHTML =
-'<span class="status-dot" style="background:#ff4d4d"></span>Data unavailable';
-
-overviewStatus.textContent =
-"Offline";
-
-}
-
-
-document.getElementById(
-"last-update"
-).textContent =
-"Last update: " +
-new Date().toLocaleTimeString();
-
-}
-
-
-/* =====================================================
-   START
-   ===================================================== */
-
-loadAllStocks();
-
-
-setInterval(
-loadAllStocks,
-5*60*1000
-);
-
-
-window.addEventListener(
-"resize",
-()=>{
-
-drawChart("AMZN");
-
-drawChart("MSFT");
-
-}
-);
-
+updatePulse();
 </script>
-
-</body>
-</html>
+```
