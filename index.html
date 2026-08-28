@@ -1,10 +1,9 @@
 <script>
 /* ============================================================
-   MARKET DESK — MASSIVE API VERSION
-   Replace YOUR_MASSIVE_API_KEY with your own Massive API key.
+   MARKET DESK — FIXED MASSIVE VERSION
    ============================================================ */
 
-const MASSIVE_API_KEY = '0vzTAdOkJphNSrPNhpmbFaa8yISILY6u';
+const MASSIVE_API_KEY = 'q9IsiZhU0q61945G4KfTA4ZT4a9D0mX3';
 const API_BASE = 'https://api.massive.com';
 
 const DEFAULTS = ['AMZN','MSFT'];
@@ -25,20 +24,25 @@ const names = {
   AVGO:'Broadcom'
 };
 
-/* Massive unified snapshot uses I:SPX for the S&P 500 index.
-   Some accounts/plans may not include index data, so the dashboard
-   simply leaves an index blank if Massive doesn't return it. */
 const INDEXES = {
   spx:'I:SPX',
   ndx:'I:NDX',
   dji:'I:DJI'
 };
 
-let symbols =
-  JSON.parse(localStorage.getItem('marketdesk_symbols') || 'null')
-  || DEFAULTS.slice();
+let symbols = [];
+try {
+  symbols =
+    JSON.parse(
+      localStorage.getItem('marketdesk_symbols') || 'null'
+    ) || DEFAULTS.slice();
+} catch {
+  symbols = DEFAULTS.slice();
+}
 
-if (!symbols.includes('AMZN')) symbols.unshift('AMZN');
+if (!symbols.includes('AMZN')) {
+  symbols.unshift('AMZN');
+}
 
 symbols = [...new Set(symbols)];
 
@@ -52,83 +56,162 @@ let refreshTimer = null;
 let busy = false;
 let lastSuccessfulUpdate = null;
 
-const fmt = n =>
-  Number.isFinite(n)
-    ? '$' + n.toLocaleString('en-US',{
+/* ============================================================
+   SAFE DOM
+   ============================================================ */
+
+function el(id){
+  return document.getElementById(id);
+}
+
+function setText(id,value){
+  const node = el(id);
+  if(node) node.textContent = value;
+}
+
+function setHTML(id,value){
+  const node = el(id);
+  if(node) node.innerHTML = value;
+}
+
+function on(id,event,fn){
+  const node = el(id);
+  if(node) node.addEventListener(event,fn);
+}
+
+/* ============================================================
+   FORMATTING
+   ============================================================ */
+
+function fmt(n){
+  return Number.isFinite(Number(n))
+    ? '$' + Number(n).toLocaleString('en-US',{
         minimumFractionDigits:2,
         maximumFractionDigits:2
       })
     : '—';
+}
 
-const pct = n =>
-  Number.isFinite(n)
-    ? (n >= 0 ? '+' : '') + n.toFixed(2) + '%'
+function pct(n){
+  return Number.isFinite(Number(n))
+    ? (Number(n) >= 0 ? '+' : '') +
+      Number(n).toFixed(2) +
+      '%'
     : '—';
+}
 
 function compact(n){
+  n = Number(n);
+
   if(!Number.isFinite(n)) return '—';
-  if(n >= 1e12) return '$' + (n/1e12).toFixed(2) + 'T';
-  if(n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
-  if(n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+
+  if(n >= 1e12)
+    return '$' + (n/1e12).toFixed(2) + 'T';
+
+  if(n >= 1e9)
+    return '$' + (n/1e9).toFixed(2) + 'B';
+
+  if(n >= 1e6)
+    return '$' + (n/1e6).toFixed(2) + 'M';
+
   return fmt(n);
 }
 
-function apiUrl(path, params = {}){
-  const u = new URL(API_BASE + path);
+/* ============================================================
+   API
+   ============================================================ */
 
-  Object.entries(params).forEach(([key,value]) => {
-    if(value !== undefined && value !== null && value !== '')
-      u.searchParams.set(key,value);
+function apiUrl(path,params={}){
+  const url = new URL(API_BASE + path);
+
+  Object.entries(params).forEach(([key,value])=>{
+    if(
+      value !== undefined &&
+      value !== null &&
+      value !== ''
+    ){
+      url.searchParams.set(key,value);
+    }
   });
 
-  u.searchParams.set('apiKey', MASSIVE_API_KEY);
+  url.searchParams.set('apiKey',MASSIVE_API_KEY);
 
-  return u.toString();
+  return url.toString();
 }
 
-async function api(path, params = {}){
+async function api(path,params={}){
   if(
     !MASSIVE_API_KEY ||
-    MASSIVE_API_KEY === 'YOUR_MASSIVE_API_KEY'
+    MASSIVE_API_KEY === 'PASTE_YOUR_NEW_MASSIVE_KEY_HERE'
   ){
-    throw new Error('Put your Massive API key in MASSIVE_API_KEY first.');
-  }
-
-  const response = await fetch(apiUrl(path,params),{
-    cache:'no-store'
-  });
-
-  if(!response.ok){
     throw new Error(
-      'Massive API request failed (' + response.status + ')'
+      'Massive API key is missing.'
     );
   }
 
-  const json = await response.json();
+  const response = await fetch(
+    apiUrl(path,params),
+    {
+      cache:'no-store',
+      headers:{
+        'Accept':'application/json'
+      }
+    }
+  );
 
-  if(json.status === 'ERROR'){
+  const text = await response.text();
+
+  let json;
+
+  try{
+    json = JSON.parse(text);
+  }catch{
     throw new Error(
-      json.error || json.message || 'Massive API error'
+      'Massive returned a non-JSON response (' +
+      response.status +
+      ').'
+    );
+  }
+
+  if(!response.ok){
+    throw new Error(
+      json.error ||
+      json.message ||
+      ('Massive API error ('+response.status+')')
+    );
+  }
+
+  if(
+    json.status === 'ERROR' ||
+    json.status === 'error'
+  ){
+    throw new Error(
+      json.error ||
+      json.message ||
+      'Massive API error.'
     );
   }
 
   return json;
 }
 
-/* ------------------------------------------------------------
-   DATE HELPERS
------------------------------------------------------------- */
+/* ============================================================
+   DATES
+   ============================================================ */
 
-function dateString(daysAgo = 0){
+function dateString(daysAgo=0){
   const d = new Date();
-  d.setDate(d.getDate() - daysAgo);
+
+  d.setDate(
+    d.getDate() - daysAgo
+  );
 
   return d.toISOString().slice(0,10);
 }
 
-/* ------------------------------------------------------------
-   RANGE SETTINGS
------------------------------------------------------------- */
+/* ============================================================
+   RANGE
+   ============================================================ */
 
 function rangeSettings(range){
 
@@ -176,9 +259,9 @@ function rangeSettings(range){
   };
 }
 
-/* ------------------------------------------------------------
+/* ============================================================
    SNAPSHOT
------------------------------------------------------------- */
+   ============================================================ */
 
 async function fetchSnapshot(sym){
 
@@ -187,16 +270,18 @@ async function fetchSnapshot(sym){
     encodeURIComponent(sym)
   );
 
-  if(!j.ticker){
-    throw new Error('No snapshot returned for ' + sym);
+  const ticker = j.ticker;
+
+  if(!ticker){
+    throw new Error(
+      'No snapshot returned for ' + sym
+    );
   }
 
-  const t = j.ticker;
-
-  const day = t.day || {};
-  const prev = t.prevDay || {};
-  const trade = t.lastTrade || {};
-  const minute = t.min || {};
+  const day = ticker.day || {};
+  const prev = ticker.prevDay || {};
+  const trade = ticker.lastTrade || {};
+  const minute = ticker.min || {};
 
   const price =
     Number(trade.p) ||
@@ -205,37 +290,46 @@ async function fetchSnapshot(sym){
     Number(prev.c);
 
   if(!Number.isFinite(price)){
-    throw new Error('No current price returned for ' + sym);
+    throw new Error(
+      'No current price returned for ' + sym
+    );
   }
 
   const previousClose =
     Number(prev.c) ||
     Number(day.c);
 
+  const rawChange =
+    Number(ticker.todaysChange);
+
+  const rawPercent =
+    Number(ticker.todaysChangePerc);
+
   const change =
-    Number(t.todaysChange);
+    Number.isFinite(rawChange)
+      ? rawChange
+      : price - previousClose;
 
   const percent =
-    Number(t.todaysChangePerc);
+    Number.isFinite(rawPercent)
+      ? rawPercent
+      : (
+          previousClose
+            ? change / previousClose * 100
+            : 0
+        );
 
   return {
     sym,
     price,
-    prev:Number.isFinite(previousClose)
-      ? previousClose
-      : price,
 
-    change:Number.isFinite(change)
-      ? change
-      : price - previousClose,
+    prev:
+      Number.isFinite(previousClose)
+        ? previousClose
+        : price,
 
-    percent:Number.isFinite(percent)
-      ? percent
-      : (
-          previousClose
-          ? (price-previousClose)/previousClose*100
-          : 0
-        ),
+    change,
+    percent,
 
     open:Number(day.o),
     high:Number(day.h),
@@ -247,25 +341,32 @@ async function fetchSnapshot(sym){
     marketCap:NaN,
 
     points:[],
-    lastUpdated:Number(t.updated)
+
+    lastUpdated:Number(
+      ticker.updated
+    )
   };
 }
 
-/* ------------------------------------------------------------
-   HISTORICAL CHART
------------------------------------------------------------- */
+/* ============================================================
+   CHART
+   ============================================================ */
 
 async function fetchChart(sym,range){
 
-  const settings = rangeSettings(range);
+  const settings =
+    rangeSettings(range);
 
   const j = await api(
     '/v2/aggs/ticker/' +
     encodeURIComponent(sym) +
     '/range/' +
-    settings.multiplier + '/' +
-    settings.timespan + '/' +
-    settings.from + '/' +
+    settings.multiplier +
+    '/' +
+    settings.timespan +
+    '/' +
+    settings.from +
+    '/' +
     dateString(0),
     {
       adjusted:'true',
@@ -274,12 +375,13 @@ async function fetchChart(sym,range){
     }
   );
 
-  const results = Array.isArray(j.results)
-    ? j.results
-    : [];
+  const results =
+    Array.isArray(j.results)
+      ? j.results
+      : [];
 
   return results
-    .map(p => ({
+    .map(p=>({
       t:Number(p.t),
       p:Number(p.c),
       o:Number(p.o),
@@ -287,16 +389,24 @@ async function fetchChart(sym,range){
       l:Number(p.l),
       v:Number(p.v || 0)
     }))
-    .filter(p => Number.isFinite(p.p));
+    .filter(
+      p=>Number.isFinite(p.p)
+    );
 }
 
-/* ------------------------------------------------------------
-   FULL QUOTE + CHART
------------------------------------------------------------- */
+/* ============================================================
+   FULL QUOTE
+   ============================================================ */
 
-async function fetchQuote(sym,range='1d'){
+async function fetchQuote(
+  sym,
+  range='1d'
+){
 
-  const [snapshot,points] = await Promise.all([
+  const [
+    snapshot,
+    points
+  ] = await Promise.all([
     fetchSnapshot(sym),
     fetchChart(sym,range)
   ]);
@@ -306,9 +416,9 @@ async function fetchQuote(sym,range='1d'){
   return snapshot;
 }
 
-/* ------------------------------------------------------------
+/* ============================================================
    RANGE BUTTONS
------------------------------------------------------------- */
+   ============================================================ */
 
 function rangeButtons(sym){
 
@@ -318,10 +428,14 @@ function rangeButtons(sym){
     '1mo',
     '3mo',
     '1y'
-  ].map(r => `
+  ].map(r=>`
 
     <button
-      class="${(ranges[sym] || '1d') === r ? 'active' : ''}"
+      class="${
+        (ranges[sym] || '1d') === r
+          ? 'active'
+          : ''
+      }"
       onclick="setRange('${sym}','${r}')">
 
       ${
@@ -339,9 +453,9 @@ function rangeButtons(sym){
   `).join('');
 }
 
-/* ------------------------------------------------------------
+/* ============================================================
    STOCK CARD
------------------------------------------------------------- */
+   ============================================================ */
 
 function cardHTML(d){
 
@@ -352,7 +466,10 @@ function cardHTML(d){
     <div class="stock-head">
 
       <div>
-        <div class="ticker">${d.sym}</div>
+        <div class="ticker">
+          ${d.sym}
+        </div>
+
         <div class="company">
           ${names[d.sym] || d.sym}
         </div>
@@ -361,7 +478,11 @@ function cardHTML(d){
       <div>
 
         <button
-          class="star ${symbols.includes(d.sym) ? 'active' : ''}"
+          class="star ${
+            symbols.includes(d.sym)
+              ? 'active'
+              : ''
+          }"
           onclick="toggleWatch('${d.sym}')">
           ☆
         </button>
@@ -383,11 +504,17 @@ function cardHTML(d){
         ${fmt(d.price)}
       </div>
 
-      <div class="change ${d.change >= 0 ? 'up' : 'down'}">
+      <div
+        class="change ${
+          d.change >= 0
+            ? 'up'
+            : 'down'
+        }">
 
         ${pct(d.percent)}
         ·
-        ${d.change >= 0 ? '+' : ''}${fmt(d.change)}
+        ${d.change >= 0 ? '+' : ''}
+        ${fmt(d.change)}
 
       </div>
 
@@ -397,7 +524,9 @@ function cardHTML(d){
       class="chart-wrap"
       id="wrap-${d.sym}">
 
-      <canvas id="canvas-${d.sym}"></canvas>
+      <canvas
+        id="canvas-${d.sym}">
+      </canvas>
 
       <div
         class="crosshair"
@@ -418,22 +547,36 @@ function cardHTML(d){
     <div class="details">
 
       <div class="detail">
-        <div class="detail-label">Open</div>
-        <div class="detail-value">${fmt(d.open)}</div>
+        <div class="detail-label">
+          Open
+        </div>
+        <div class="detail-value">
+          ${fmt(d.open)}
+        </div>
       </div>
 
       <div class="detail">
-        <div class="detail-label">Day high</div>
-        <div class="detail-value">${fmt(d.high)}</div>
+        <div class="detail-label">
+          Day high
+        </div>
+        <div class="detail-value">
+          ${fmt(d.high)}
+        </div>
       </div>
 
       <div class="detail">
-        <div class="detail-label">Day low</div>
-        <div class="detail-value">${fmt(d.low)}</div>
+        <div class="detail-label">
+          Day low
+        </div>
+        <div class="detail-value">
+          ${fmt(d.low)}
+        </div>
       </div>
 
       <div class="detail">
-        <div class="detail-label">Volume</div>
+        <div class="detail-label">
+          Volume
+        </div>
         <div class="detail-value">
           ${
             Number.isFinite(d.volume)
@@ -444,28 +587,36 @@ function cardHTML(d){
       </div>
 
       <div class="detail">
-        <div class="detail-label">52W high</div>
+        <div class="detail-label">
+          52W high
+        </div>
         <div class="detail-value">
           ${fmt(d.fiftyTwoHigh)}
         </div>
       </div>
 
       <div class="detail">
-        <div class="detail-label">52W low</div>
+        <div class="detail-label">
+          52W low
+        </div>
         <div class="detail-value">
           ${fmt(d.fiftyTwoLow)}
         </div>
       </div>
 
       <div class="detail">
-        <div class="detail-label">Market cap</div>
+        <div class="detail-label">
+          Market cap
+        </div>
         <div class="detail-value">
           ${compact(d.marketCap)}
         </div>
       </div>
 
       <div class="detail">
-        <div class="detail-label">Previous close</div>
+        <div class="detail-label">
+          Previous close
+        </div>
         <div class="detail-value">
           ${fmt(d.prev)}
         </div>
@@ -483,36 +634,56 @@ function cardHTML(d){
   `;
 }
 
-/* ------------------------------------------------------------
+/* ============================================================
    VOLUME
------------------------------------------------------------- */
+   ============================================================ */
 
 function showVol(){
-  return document.getElementById('showVolume')?.checked;
+  const checkbox =
+    el('showVolume');
+
+  return checkbox
+    ? checkbox.checked
+    : false;
 }
 
-/* ------------------------------------------------------------
-   DRAW CHART
------------------------------------------------------------- */
+/* ============================================================
+   DRAW
+   ============================================================ */
 
 function draw(d){
 
+  if(!d)return;
+
   const canvas =
-    document.getElementById('canvas-' + d.sym);
+    el('canvas-' + d.sym);
 
   if(!canvas)return;
 
-  const box = canvas.getBoundingClientRect();
+  const box =
+    canvas.getBoundingClientRect();
 
-  const ratio = window.devicePixelRatio || 1;
+  const w =
+    box.width;
 
-  const w = box.width;
-  const h = box.height;
+  const h =
+    box.height;
 
-  canvas.width = w * ratio;
-  canvas.height = h * ratio;
+  if(!w || !h)return;
 
-  const ctx = canvas.getContext('2d');
+  const ratio =
+    window.devicePixelRatio || 1;
+
+  canvas.width =
+    Math.max(1,w*ratio);
+
+  canvas.height =
+    Math.max(1,h*ratio);
+
+  const ctx =
+    canvas.getContext('2d');
+
+  if(!ctx)return;
 
   ctx.setTransform(
     ratio,
@@ -523,14 +694,25 @@ function draw(d){
     0
   );
 
-  ctx.clearRect(0,0,w,h);
+  ctx.clearRect(
+    0,
+    0,
+    w,
+    h
+  );
 
-  const pts = d.points || [];
+  const pts =
+    Array.isArray(d.points)
+      ? d.points
+      : [];
 
   if(pts.length < 2){
 
-    ctx.fillStyle = '#777c84';
-    ctx.font = '13px Arial';
+    ctx.fillStyle =
+      '#777c84';
+
+    ctx.font =
+      '13px Arial';
 
     ctx.fillText(
       'Chart data unavailable',
@@ -545,17 +727,22 @@ function draw(d){
     l:10,
     r:10,
     t:18,
-    b:showVol() ? 48 : 18
+    b:showVol()
+      ? 48
+      : 18
   };
 
-  const values = pts.map(p => p.p);
+  const values =
+    pts.map(p=>p.p);
 
-  const min = Math.min(...values);
-  const max = Math.max(...values);
+  const min =
+    Math.min(...values);
 
-  const range = max - min || 1;
+  const max =
+    Math.max(...values);
 
-  /* Grid */
+  const range =
+    max-min || 1;
 
   for(let i=1;i<5;i++){
 
@@ -563,20 +750,23 @@ function draw(d){
       pad.t +
       (h-pad.t-pad.b)*i/5;
 
-    ctx.strokeStyle = '#171a1f';
+    ctx.strokeStyle =
+      '#171a1f';
 
     ctx.beginPath();
+
     ctx.moveTo(0,y);
     ctx.lineTo(w,y);
+
     ctx.stroke();
   }
-
-  /* Volume */
 
   if(showVol()){
 
     const volumes =
-      pts.map(p => p.v || 0);
+      pts.map(
+        p=>p.v || 0
+      );
 
     const maxVolume =
       Math.max(...volumes) || 1;
@@ -584,10 +774,12 @@ function draw(d){
     const barWidth =
       Math.max(
         1,
-        (w-pad.l-pad.r)/pts.length
+        (w-pad.l-pad.r) /
+        pts.length
       );
 
-    ctx.fillStyle = '#1e252b';
+    ctx.fillStyle =
+      '#1e252b';
 
     pts.forEach((p,i)=>{
 
@@ -599,14 +791,15 @@ function draw(d){
       ctx.fillRect(
         pad.l+i*barWidth,
         h-4-bh,
-        Math.max(1,barWidth*.65),
+        Math.max(
+          1,
+          barWidth*.65
+        ),
         bh
       );
 
     });
   }
-
-  /* Price line */
 
   ctx.beginPath();
 
@@ -620,7 +813,10 @@ function draw(d){
     const y =
       pad.t +
       (h-pad.t-pad.b) *
-      (1-(p.p-min)/range);
+      (
+        1 -
+        (p.p-min)/range
+      );
 
     if(i === 0)
       ctx.moveTo(x,y);
@@ -634,38 +830,42 @@ function draw(d){
       ? '#00c805'
       : '#ff4d4d';
 
-  ctx.lineWidth = 2.2;
-  ctx.lineJoin = 'round';
+  ctx.lineWidth =
+    2.2;
+
+  ctx.lineJoin =
+    'round';
 
   ctx.stroke();
 }
 
-/* ------------------------------------------------------------
-   CHART HOVER
------------------------------------------------------------- */
+/* ============================================================
+   HOVER
+   ============================================================ */
 
 function attachHover(d){
 
   const wrap =
-    document.getElementById(
-      'wrap-' + d.sym
-    );
+    el('wrap-' + d.sym);
 
   const tip =
-    document.getElementById(
-      'tip-' + d.sym
-    );
+    el('tip-' + d.sym);
 
   const cross =
-    document.getElementById(
-      'cross-' + d.sym
-    );
+    el('cross-' + d.sym);
 
-  if(!wrap)return;
+  if(
+    !wrap ||
+    !tip ||
+    !cross
+  )return;
 
-  wrap.onmousemove = e => {
+  wrap.onmousemove = e=>{
 
-    if(d.points.length < 2)return;
+    if(
+      !d.points ||
+      d.points.length < 2
+    )return;
 
     const rect =
       wrap.getBoundingClientRect();
@@ -675,7 +875,8 @@ function attachHover(d){
         0,
         Math.min(
           rect.width,
-          e.clientX - rect.left
+          e.clientX -
+          rect.left
         )
       );
 
@@ -685,57 +886,82 @@ function attachHover(d){
         (d.points.length-1)
       );
 
-    const p = d.points[index];
+    const p =
+      d.points[index];
+
+    if(!p)return;
 
     const first =
       d.points[0].p;
 
     const change =
       first
-        ? (p.p-first)/first*100
+        ? (p.p-first) /
+          first * 100
         : 0;
 
-    tip.style.display = 'block';
+    tip.style.display =
+      'block';
 
     tip.style.left =
       Math.min(
         x+12,
-        rect.width-190
+        Math.max(
+          0,
+          rect.width-190
+        )
       ) + 'px';
 
     tip.style.top =
       Math.max(
         8,
-        e.clientY-rect.top-65
+        e.clientY -
+        rect.top -
+        65
       ) + 'px';
 
     tip.innerHTML =
-      '<b>' + fmt(p.p) + '</b><br>' +
+      '<b>' + fmt(p.p) +
+      '</b><br>' +
       pct(change) +
       ' · ' +
-      (p.p-first >= 0 ? '+' : '') +
+      (
+        p.p-first >= 0
+          ? '+'
+          : ''
+      ) +
       fmt(p.p-first) +
       ' from period start<br>' +
-      new Date(p.t).toLocaleString() +
-      '<br>O ' + fmt(p.o) +
-      ' · H ' + fmt(p.h) +
-      ' · L ' + fmt(p.l);
+      new Date(p.t)
+        .toLocaleString() +
+      '<br>O ' +
+      fmt(p.o) +
+      ' · H ' +
+      fmt(p.h) +
+      ' · L ' +
+      fmt(p.l);
 
-    cross.style.display = 'block';
-    cross.style.left = x + 'px';
+    cross.style.display =
+      'block';
+
+    cross.style.left =
+      x + 'px';
   };
 
-  wrap.onmouseleave = () => {
+  wrap.onmouseleave = ()=>{
 
-    tip.style.display = 'none';
-    cross.style.display = 'none';
+    tip.style.display =
+      'none';
+
+    cross.style.display =
+      'none';
 
   };
 }
 
-/* ------------------------------------------------------------
-   LOAD ONE SYMBOL
------------------------------------------------------------- */
+/* ============================================================
+   LOAD
+   ============================================================ */
 
 async function load(sym){
 
@@ -754,21 +980,23 @@ async function load(sym){
   }catch(error){
 
     console.warn(
-      'Could not load ' + sym,
+      'Could not load ' +
+      sym +
+      ':',
       error
     );
 
-    const err =
-      document.getElementById(
-        'err-' + sym
-      );
+    const errorBox =
+      el('err-' + sym);
 
-    if(err){
+    if(errorBox){
 
-      err.style.display = 'block';
+      errorBox.style.display =
+        'block';
 
-      err.textContent =
-        error.message;
+      errorBox.textContent =
+        error.message ||
+        'Could not load market data.';
 
     }
 
@@ -776,9 +1004,69 @@ async function load(sym){
   }
 }
 
-/* ------------------------------------------------------------
-   REFRESH EVERYTHING
------------------------------------------------------------- */
+/* ============================================================
+   INDEX SNAPSHOTS
+   ============================================================ */
+
+async function fetchIndex(sym){
+
+  const j =
+    await api(
+      '/v3/snapshot',
+      {
+        ticker:sym
+      }
+    );
+
+  const result =
+    j.results?.[0];
+
+  if(!result){
+    throw new Error(
+      'No index data returned for ' +
+      sym
+    );
+  }
+
+  const session =
+    result.session || {};
+
+  const price =
+    Number(session.price);
+
+  const previous =
+    Number(session.previous_close);
+
+  const change =
+    Number(session.change);
+
+  const percent =
+    Number(session.change_percent);
+
+  if(!Number.isFinite(price)){
+    throw new Error(
+      'No index price returned for ' +
+      sym
+    );
+  }
+
+  return {
+    sym,
+    price,
+    prev:previous,
+    change,
+    percent,
+    open:Number(session.open),
+    high:Number(session.high),
+    low:Number(session.low),
+    volume:Number(session.volume),
+    points:[]
+  };
+}
+
+/* ============================================================
+   REFRESH
+   ============================================================ */
 
 async function refreshAll(){
 
@@ -786,10 +1074,10 @@ async function refreshAll(){
 
   busy = true;
 
-  document.getElementById(
-    'marketStatus'
-  ).innerHTML =
-    '<span class="status-dot"></span>Updating';
+  setHTML(
+    'marketStatus',
+    '<span class="status-dot"></span>Updating'
+  );
 
   const all = [
     ...new Set([
@@ -801,18 +1089,9 @@ async function refreshAll(){
 
   let success = 0;
 
-  /*
-    Sequential loading prevents the free API tier from
-    being hammered with simultaneous requests.
-  */
-
   for(const sym of all){
 
     try{
-
-      /*
-        Index tickers are handled separately below.
-      */
 
       if(
         sym === 'I:SPX' ||
@@ -820,35 +1099,8 @@ async function refreshAll(){
         sym === 'I:DJI'
       ){
 
-        const j =
-          await api(
-            '/v3/snapshot',
-            {ticker:sym}
-          );
-
-        const result =
-          j.results?.[0];
-
-        if(result){
-
-          const session =
-            result.session || {};
-
-          data[sym] = {
-            sym,
-            price:Number(session.price),
-            prev:Number(session.previous_close),
-            change:Number(session.change),
-            percent:Number(session.change_percent),
-            open:Number(session.open),
-            high:Number(session.high),
-            low:Number(session.low),
-            volume:Number(session.volume),
-            points:[]
-          };
-
-          success++;
-        }
+        data[sym] =
+          await fetchIndex(sym);
 
       }else{
 
@@ -857,9 +1109,9 @@ async function refreshAll(){
             sym,
             ranges[sym] || '1d'
           );
-
-        success++;
       }
+
+      success++;
 
     }catch(error){
 
@@ -872,12 +1124,12 @@ async function refreshAll(){
 
     }
 
-    /*
-      Small pause between requests.
-    */
-
     await new Promise(
-      resolve => setTimeout(resolve,120)
+      resolve =>
+        setTimeout(
+          resolve,
+          150
+        )
     );
   }
 
@@ -886,48 +1138,51 @@ async function refreshAll(){
 
   render();
 
-  document.getElementById(
-    'update-time'
-  ).textContent =
-    lastSuccessfulUpdate.toLocaleTimeString();
+  setText(
+    'update-time',
+    lastSuccessfulUpdate
+      .toLocaleTimeString()
+  );
 
-  document.getElementById(
-    'connection-note'
-  ).textContent =
+  setText(
+    'connection-note',
     success
-      ? 'Massive · ' + success + ' symbols loaded'
-      : 'Waiting for data';
+      ? 'Massive · ' +
+        success +
+        ' symbols loaded'
+      : 'Waiting for data'
+  );
 
-  document.getElementById(
-    'feedNotice'
-  ).innerHTML =
+  setHTML(
+    'feedNotice',
     '<b style="color:#fff">Live feed:</b> ' +
     (
       success
         ? 'Connected to Massive.'
         : 'Could not connect to Massive.'
-    );
+    )
+  );
 
-  document.getElementById(
-    'marketStatus'
-  ).innerHTML =
+  setHTML(
+    'marketStatus',
     success
       ? '<span class="status-dot"></span>Market data loaded'
-      : '<span class="status-dot" style="background:#ff4d4d"></span>Live feed unavailable';
+      : '<span class="status-dot" style="background:#ff4d4d"></span>Live feed unavailable'
+  );
 
   busy = false;
 }
 
-/* ------------------------------------------------------------
+/* ============================================================
    AMAZON PIN
------------------------------------------------------------- */
+   ============================================================ */
 
 function pinAmazon(){
 
   symbols = [
     'AMZN',
     ...symbols.filter(
-      s => s !== 'AMZN'
+      s=>s !== 'AMZN'
     )
   ];
 
@@ -939,16 +1194,14 @@ function pinAmazon(){
   render();
 }
 
-/* ------------------------------------------------------------
+/* ============================================================
    FULLSCREEN
------------------------------------------------------------- */
+   ============================================================ */
 
 function fullscreenChart(sym){
 
   const wrap =
-    document.getElementById(
-      'wrap-' + sym
-    );
+    el('wrap-' + sym);
 
   if(!wrap)return;
 
@@ -962,14 +1215,17 @@ function fullscreenChart(sym){
       : '';
 
   setTimeout(
-    () => draw(data[sym]),
+    ()=>{
+      if(data[sym])
+        draw(data[sym]);
+    },
     50
   );
 }
 
 document.addEventListener(
   'keydown',
-  e => {
+  e=>{
 
     if(e.key === 'Escape'){
 
@@ -977,8 +1233,11 @@ document.addEventListener(
         .querySelectorAll(
           '.chart-wrap.fullscreen'
         )
-        .forEach(w =>
-          w.classList.remove('fullscreen')
+        .forEach(
+          w =>
+            w.classList.remove(
+              'fullscreen'
+            )
         );
 
       document.documentElement.style.overflow =
@@ -986,16 +1245,18 @@ document.addEventListener(
 
       redrawAll();
     }
+
   }
 );
 
-/* ------------------------------------------------------------
-   MARKET STATUS
------------------------------------------------------------- */
+/* ============================================================
+   MARKET CLOCK
+   ============================================================ */
 
 function updatePulse(){
 
-  const now = new Date();
+  const now =
+    new Date();
 
   const parts =
     new Intl.DateTimeFormat(
@@ -1012,15 +1273,15 @@ function updatePulse(){
   const h =
     Number(
       parts.find(
-        x => x.type === 'hour'
-      ).value
+        x=>x.type==='hour'
+      )?.value || 0
     );
 
   const m =
     Number(
       parts.find(
-        x => x.type === 'minute'
-      ).value
+        x=>x.type==='minute'
+      )?.value || 0
     );
 
   const mins =
@@ -1041,163 +1302,153 @@ function updatePulse(){
     mins >= 570 &&
     mins < 960;
 
-  const session =
-    document.getElementById(
-      'market-session'
-    );
+  setText(
+    'market-session',
+    open
+      ? 'US market open'
+      : 'US market closed / pre-market / after-hours'
+  );
 
-  const countdown =
-    document.getElementById(
-      'market-countdown'
-    );
-
-  if(session){
-
-    session.textContent =
-      open
-        ? 'US market open'
-        : 'US market closed / pre-market / after-hours';
-
-  }
-
-  if(countdown){
-
-    countdown.textContent =
-      open
-        ? 'Closes in ' +
-          Math.max(0,960-mins) +
-          'm'
-        : 'Updates every 60s';
-
-  }
+  setText(
+    'market-countdown',
+    open
+      ? 'Closes in ' +
+        Math.max(
+          0,
+          960-mins
+        ) +
+        'm'
+      : 'Updates every 60s'
+  );
 
   const amazon =
     data.AMZN;
 
-  if(amazon){
+  if(!amazon)return;
 
-    const move =
-      document.getElementById(
-        'amzn-session-move'
+  const move =
+    el('amzn-session-move');
+
+  if(move){
+
+    move.textContent =
+      pct(amazon.percent);
+
+    move.className =
+      'row-right ' +
+      (
+        amazon.change >= 0
+          ? 'up'
+          : 'down'
       );
-
-    if(move){
-
-      move.textContent =
-        pct(amazon.percent);
-
-      move.className =
-        'row-right ' +
-        (
-          amazon.change >= 0
-            ? 'up'
-            : 'down'
-        );
-    }
-
-    const range =
-      document.getElementById(
-        'amzn-day-range'
-      );
-
-    if(range){
-
-      range.textContent =
-        fmt(amazon.low) +
-        ' — ' +
-        fmt(amazon.high);
-    }
-
-    const position =
-      document.getElementById(
-        'amzn-range-position'
-      );
-
-    const span =
-      amazon.high-amazon.low;
-
-    if(position){
-
-      position.textContent =
-        span > 0
-          ? Math.round(
-              (amazon.price-amazon.low) /
-              span *
-              100
-            ) + '% of range'
-          : '—';
-    }
   }
+
+  setText(
+    'amzn-day-range',
+    fmt(amazon.low) +
+    ' — ' +
+    fmt(amazon.high)
+  );
+
+  const span =
+    amazon.high -
+    amazon.low;
+
+  setText(
+    'amzn-range-position',
+    span > 0
+      ? Math.round(
+          (
+            amazon.price -
+            amazon.low
+          ) /
+          span *
+          100
+        ) +
+        '% of range'
+      : '—'
+  );
 }
 
-/* ------------------------------------------------------------
-   MAIN RENDER
------------------------------------------------------------- */
+/* ============================================================
+   RENDER
+   ============================================================ */
 
 function render(){
 
   const grid =
-    document.getElementById(
-      'stockGrid'
-    );
+    el('stockGrid');
 
-  if(!grid)return;
+  if(grid){
 
-  grid.innerHTML =
-    symbols.map(sym => {
+    grid.innerHTML =
+      symbols.map(sym=>{
 
-      if(data[sym])
-        return cardHTML(data[sym]);
+        if(data[sym])
+          return cardHTML(
+            data[sym]
+          );
 
-      return `
-        <div class="card">
-          <b>${sym}</b>
-          <div
-            class="error"
-            style="display:block">
-            Waiting for market data.
+        return `
+          <div class="card">
+
+            <b>${sym}</b>
+
+            <div
+              class="error"
+              style="display:block">
+
+              Waiting for market data.
+
+            </div>
+
           </div>
-        </div>
-      `;
+        `;
 
-    }).join('');
+      }).join('');
 
-  symbols.forEach(sym => {
+    symbols.forEach(sym=>{
 
-    if(data[sym]){
+      if(data[sym]){
 
-      draw(data[sym]);
+        draw(data[sym]);
 
-      attachHover(data[sym]);
-    }
+        attachHover(
+          data[sym]
+        );
 
-  });
+      }
+
+    });
+  }
 
   renderWatch();
   renderIndexes();
   renderMovers();
 }
 
-/* ------------------------------------------------------------
+/* ============================================================
    WATCHLIST
------------------------------------------------------------- */
+   ============================================================ */
 
 function renderWatch(){
+
+  const grid =
+    el('watchgrid');
+
+  if(!grid)return;
 
   const list =
     [
       ...WATCH_DEFAULTS,
       ...symbols
     ].filter(
-      (s,i,a) =>
+      (s,i,a)=>
         a.indexOf(s) === i
     );
 
-  document.getElementById(
-    'watchgrid'
-  ).innerHTML =
-
-    list.map(sym => {
+  grid.innerHTML =
+    list.map(sym=>{
 
       const d =
         data[sym];
@@ -1223,8 +1474,15 @@ function renderWatch(){
             </div>
 
             <button
-              class="star ${symbols.includes(sym) ? 'active' : ''}"
-              onclick="event.stopPropagation();toggleWatch('${sym}')">
+              class="star ${
+                symbols.includes(sym)
+                  ? 'active'
+                  : ''
+              }"
+              onclick="
+                event.stopPropagation();
+                toggleWatch('${sym}')
+              ">
               ☆
             </button>
 
@@ -1241,7 +1499,11 @@ function renderWatch(){
                 : 'down'
             }">
 
-            ${d ? pct(d.percent) : 'Loading…'}
+            ${
+              d
+                ? pct(d.percent)
+                : 'Loading…'
+            }
 
           </div>
 
@@ -1252,9 +1514,9 @@ function renderWatch(){
     }).join('');
 }
 
-/* ------------------------------------------------------------
+/* ============================================================
    INDEXES
------------------------------------------------------------- */
+   ============================================================ */
 
 function renderIndexes(){
 
@@ -1262,72 +1524,76 @@ function renderIndexes(){
     ['spx','I:SPX'],
     ['ndx','I:NDX'],
     ['dji','I:DJI']
-  ].forEach(([id,sym]) => {
+  ].forEach(
+    ([id,sym])=>{
 
-    const d =
-      data[sym];
+      const d =
+        data[sym];
 
-    if(!d)return;
+      if(!d)return;
 
-    const value =
-      document.getElementById(
-        id + '-value'
-      );
+      const value =
+        el(id+'-value');
 
-    const change =
-      document.getElementById(
-        id + '-change'
-      );
+      const change =
+        el(id+'-change');
 
-    if(value){
+      if(value){
 
-      value.textContent =
-        Number(d.price).toLocaleString(
-          'en-US',
-          {
-            maximumFractionDigits:2
-          }
-        );
+        value.textContent =
+          Number(
+            d.price
+          ).toLocaleString(
+            'en-US',
+            {
+              maximumFractionDigits:2
+            }
+          );
+      }
+
+      if(change){
+
+        change.textContent =
+          pct(d.percent);
+
+        change.className =
+          'mini-change ' +
+          (
+            d.change >= 0
+              ? 'up'
+              : 'down'
+          );
+      }
+
     }
-
-    if(change){
-
-      change.textContent =
-        pct(d.percent);
-
-      change.className =
-        'mini-change ' +
-        (
-          d.change >= 0
-            ? 'up'
-            : 'down'
-        );
-    }
-
-  });
+  );
 }
 
-/* ------------------------------------------------------------
+/* ============================================================
    MOVERS
------------------------------------------------------------- */
+   ============================================================ */
 
 function renderMovers(){
 
+  const box =
+    el('movers');
+
+  if(!box)return;
+
   const list =
     WATCH_DEFAULTS
-      .map(sym => data[sym])
+      .map(
+        sym=>data[sym]
+      )
       .filter(Boolean)
       .sort(
-        (a,b) =>
+        (a,b)=>
           b.percent-a.percent
       )
       .slice(0,6);
 
-  document.getElementById(
-    'movers'
-  ).innerHTML =
-
-    list.map(d => `
+  box.innerHTML =
+    list.map(d=>`
 
       <div class="row">
 
@@ -1357,41 +1623,51 @@ function renderMovers(){
             ${fmt(d.price)}
           </div>
 
-          <div class="${d.change >= 0 ? 'up' : 'down'}">
+          <div
+            class="${
+              d.change >= 0
+                ? 'up'
+                : 'down'
+            }">
+
             ${pct(d.percent)}
+
           </div>
 
         </div>
 
       </div>
 
-    `).join('')
-
-    ||
+    `).join('') ||
     '<div class="muted">No data yet.</div>';
 }
 
-/* ------------------------------------------------------------
-   CHANGE CHART RANGE
------------------------------------------------------------- */
+/* ============================================================
+   RANGE
+   ============================================================ */
 
 function setRange(sym,range){
 
-  ranges[sym] = range;
+  ranges[sym] =
+    range;
 
-  load(sym).catch(() => {});
+  load(sym)
+    .catch(()=>{});
 }
 
-/* ------------------------------------------------------------
-   ADD TICKER
------------------------------------------------------------- */
+/* ============================================================
+   ADD SYMBOL
+   ============================================================ */
 
 function addSymbol(){
 
+  const input =
+    el('symbolInput');
+
+  if(!input)return;
+
   let sym =
-    document.getElementById(
-      'symbolInput'
-    ).value
+    input.value
       .trim()
       .toUpperCase()
       .replace(
@@ -1409,16 +1685,15 @@ function addSymbol(){
     JSON.stringify(symbols)
   );
 
-  document.getElementById(
-    'symbolInput'
-  ).value = '';
+  input.value = '';
 
-  load(sym).catch(() => {});
+  load(sym)
+    .catch(()=>{});
 }
 
-/* ------------------------------------------------------------
-   WATCHLIST CLICK
------------------------------------------------------------- */
+/* ============================================================
+   WATCH CLICK
+   ============================================================ */
 
 function addFromWatch(sym){
 
@@ -1431,19 +1706,21 @@ function addFromWatch(sym){
       JSON.stringify(symbols)
     );
 
-    load(sym).catch(() => {});
+    load(sym)
+      .catch(()=>{});
   }
 }
 
-/* ------------------------------------------------------------
-   WATCH TOGGLE
------------------------------------------------------------- */
+/* ============================================================
+   TOGGLE WATCH
+   ============================================================ */
 
 function toggleWatch(sym){
 
   if(sym === 'AMZN'){
 
     pinAmazon();
+
     return;
   }
 
@@ -1451,7 +1728,7 @@ function toggleWatch(sym){
 
     symbols =
       symbols.filter(
-        x => x !== sym
+        x=>x !== sym
       );
 
   }else{
@@ -1462,7 +1739,7 @@ function toggleWatch(sym){
   symbols = [
     'AMZN',
     ...symbols.filter(
-      x => x !== 'AMZN'
+      x=>x !== 'AMZN'
     )
   ];
 
@@ -1474,9 +1751,9 @@ function toggleWatch(sym){
   render();
 }
 
-/* ------------------------------------------------------------
+/* ============================================================
    RESET
------------------------------------------------------------- */
+   ============================================================ */
 
 function resetSymbols(){
 
@@ -1491,13 +1768,13 @@ function resetSymbols(){
   refreshAll();
 }
 
-/* ------------------------------------------------------------
+/* ============================================================
    REDRAW
------------------------------------------------------------- */
+   ============================================================ */
 
 function redrawAll(){
 
-  symbols.forEach(sym => {
+  symbols.forEach(sym=>{
 
     if(data[sym])
       draw(data[sym]);
@@ -1505,67 +1782,45 @@ function redrawAll(){
   });
 }
 
-/* ------------------------------------------------------------
-   AUTO REFRESH
------------------------------------------------------------- */
+/* ============================================================
+   EVENTS
+   ============================================================ */
 
-const autoRefresh =
-  document.getElementById(
-    'autoRefresh'
-  );
+on(
+  'autoRefresh',
+  'change',
+  e=>{
 
-if(autoRefresh){
+    clearInterval(
+      refreshTimer
+    );
 
-  autoRefresh.addEventListener(
-    'change',
-    e => {
+    if(e.target.checked){
 
-      clearInterval(
-        refreshTimer
-      );
-
-      if(e.target.checked){
-
-        refreshTimer =
-          setInterval(
-            refreshAll,
-            LIVE_INTERVAL
-          );
-      }
-
+      refreshTimer =
+        setInterval(
+          refreshAll,
+          LIVE_INTERVAL
+        );
     }
-  );
-}
 
-/* ------------------------------------------------------------
-   VOLUME TOGGLE
------------------------------------------------------------- */
+  }
+);
 
-const volumeToggle =
-  document.getElementById(
-    'showVolume'
-  );
-
-if(volumeToggle){
-
-  volumeToggle.addEventListener(
-    'change',
-    redrawAll
-  );
-}
-
-/* ------------------------------------------------------------
-   WINDOW EVENTS
------------------------------------------------------------- */
+on(
+  'showVolume',
+  'change',
+  redrawAll
+);
 
 window.addEventListener(
   'resize',
   redrawAll
 );
 
-/* ------------------------------------------------------------
+/* ============================================================
    START
------------------------------------------------------------- */
+   ============================================================ */
 
 refreshAll();
 
@@ -1581,4 +1836,5 @@ setInterval(
 );
 
 updatePulse();
+
 </script>
